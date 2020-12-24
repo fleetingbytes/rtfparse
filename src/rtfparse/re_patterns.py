@@ -21,6 +21,10 @@ def not_preceded_by(preceding: bytes, actual: bytes) -> bytes:
     return rb"(?<!" + preceding + rb")" + actual
 
 
+def not_followed_by(preceding: bytes, actual: bytes) -> bytes:
+    return rb"(?<!" + preceding + rb")" + actual
+
+
 def no_capture(content: bytes) -> bytes:
     return rb"(?:" + content + rb")"
 
@@ -28,6 +32,9 @@ def no_capture(content: bytes) -> bytes:
 # Raw regular expression "strings"" (actually byte strings)
 
 
+_control_characters = rb"\\\{\}"
+control_character = group(_control_characters)
+not_control_character = group(rb"^" + _control_characters)
 rtf_backslash = named_regex_group("backslash", not_preceded_by(rb"\\", rb"\\"))
 unnamed_rtf_backslash = not_preceded_by(rb"\\", rb"\\")
 _letters = rb"a-zA-Z"
@@ -53,6 +60,7 @@ delimiter = named_regex_group("delimiter", rb"|".join((rb" ", parameter, other))
 symbol = named_regex_group("symbol", other)
 control_word_pattern = named_regex_group("control_word", rtf_backslash + ascii_letter_sequence + delimiter)
 pcdata_delimiter = no_capture(rb"|".join((rtf_brace_open, rtf_brace_close, control_word_pattern)))
+plain_text_pattern = named_regex_group("text", not_control_character + rb"+") + no_capture(control_character)
 
 
 class Bytes_Regex():
@@ -70,6 +78,7 @@ control_word = Bytes_Regex(control_word_pattern)
 control_symbol = Bytes_Regex(rtf_backslash + symbol)
 group_start = Bytes_Regex(rtf_brace_open)
 group_end = Bytes_Regex(rtf_brace_close)
+plain_text = Bytes_Regex(plain_text_pattern)
 
 
 raw_pcdata = Bytes_Regex(named_regex_group("pcdata", rb".*?") + pcdata_delimiter, flags=re.DOTALL)

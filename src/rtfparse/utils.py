@@ -9,9 +9,9 @@ import pathlib
 logger = logging.getLogger(__name__)
 
 
-program_name = home_dir_name = "pyrtfparse"
+program_name = home_dir_name = "rtfparse"
 dir_name = "".join((".", program_name))
-configuration_file_name = "pyrtfparse_configuration.ini"
+configuration_file_name = f"{program_name}_configuration.ini"
 
 
 def provide_dir(directory: pathlib.Path) -> pathlib.Path:

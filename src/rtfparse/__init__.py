@@ -6,7 +6,7 @@ Parser of Microsoft RTF Format
 """
 
 
-from pyrtfparse import version
+from rtfparse import version
 
 
 __author__ = "Sven Siegmund"

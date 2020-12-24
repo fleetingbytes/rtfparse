@@ -11,9 +11,9 @@ import dataclasses
 import urllib.parse
 from collections import OrderedDict
 # Own modules
-from pyrtfparse import errors
-from pyrtfparse import utils
-from pyrtfparse import menu
+from rtfparse import errors
+from rtfparse import utils
+from rtfparse import menu
 
 
 # setup logging

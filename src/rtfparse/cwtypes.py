@@ -6,11 +6,11 @@ Control Word Types
 """
 
 
-from pyrtfparse import re_patterns
+from rtfparse import re_patterns
 
 
 class Cwtype:
-    default_delimiter = "\r\n"
+    default_delimiter = " "
 
 
 class Flag(Cwtype):

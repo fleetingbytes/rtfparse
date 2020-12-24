@@ -7,7 +7,7 @@ import re
 
 
 this_dir = pathlib.Path(__file__).parent.absolute()
-project_name = "pyrtfparse"
+project_name = "rtfparse"
 package_dir = "src"
 path_to_init_file = this_dir / package_dir / project_name / "__init__.py"
 
@@ -44,7 +44,7 @@ setup(
         long_description=long_description,
         author=get_property("__author__", path_to_init_file),
         author_email=get_property("__author_email__", path_to_init_file),
-        url="https://github.com/Nagidal/pyrtfparse",
+        url="https://github.com/Nagidal/rtfparse",
         classifiers=[
             "Development Status :: 2 - Pre-Alpha"
             # "Development Status :: 3 - Alpha",
@@ -73,7 +73,7 @@ setup(
         python_requires=">=3.9",
         install_requires=requirements,
         entry_points={
-            "console_scripts": [f"{project_name} = {project_name}.__main__:{project_name}",
+            "console_scripts": [f"{project_name} = {project_name}.__main__:main",
                 ],
             },
         platforms=["any"],

@@ -6,7 +6,7 @@ import pathlib
 
 class Error(Exception):
     """
-    Base class for pyrtfparser-specific errors
+    Base class for rtfparser-specific errors
     """
     def __init__(self, message: str=""):
         self.message = message

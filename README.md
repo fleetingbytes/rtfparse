@@ -1,4 +1,4 @@
-# pyrtfparse
+# rtfparse
 
 RTF Parser
 

@@ -10,12 +10,12 @@ import argcomplete
 from argcomplete.completers import EnvironCompleter as EC
 from itertools import filterfalse
 # Own modules
-from pyrtfparse import logging_conf
-from pyrtfparse import errors
-from pyrtfparse import utils
-from pyrtfparse import config_loader
-from pyrtfparse import version
-from pyrtfparse.parser import Rtf_Parser
+from rtfparse import logging_conf
+from rtfparse import errors
+from rtfparse import utils
+from rtfparse import config_loader
+from rtfparse import version
+from rtfparse.parser import Rtf_Parser
 
 
 # Setup logging
@@ -50,9 +50,9 @@ def argument_parser() -> argparse.ArgumentParser:
 
 
 def run(config: config_loader.Config) -> None:
-    if config.cli_args.file.exists():
+    if config.cli_args.file and config.cli_args.file.exists():
         rp = Rtf_Parser()
-        with open (config.cli_args.file, mode="rb") as rtf_file:
+        with open(config.cli_args.file, mode="rb") as rtf_file:
             rp.parse_file(rtf_file)
 
 

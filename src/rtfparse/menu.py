@@ -6,7 +6,7 @@ import os
 import collections
 import logging
 # Own modules
-from pyrtfparse import utils
+from rtfparse import utils
 
 
 # Setup logging
