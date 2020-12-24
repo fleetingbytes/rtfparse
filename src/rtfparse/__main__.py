@@ -6,9 +6,9 @@ from rtfparse import version
 from rtfparse import entry
 
 
-def main():
+def rtfparse():
     sys.exit(entry.cli_start(version.version))
 
 
 if __name__ == "__main__":
-    main()
+    rtfparse()

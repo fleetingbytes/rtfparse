@@ -15,13 +15,6 @@ logger = logging.getLogger(__name__)
 
 class Rtf_Parser:
     probe_len = 42
-    @classmethod
-    def matchseek(cls, pattern: re.Pattern, file: io.BufferedReader) -> re.Match:
-        original_position = file.tell()
-        if (match := pattern.match(file.read(cls.probe_len))):
-            logger.debug(f"{match = }")
-            file.seek(original_position + match.span()[1])
-            return match
     @staticmethod
     def start_group(match: re.Match) -> None:
         logger.debug(f"Starting group")
@@ -67,7 +60,7 @@ class Rtf_Parser:
         try:
             self.parsed = entities.Destination_Group(file)
         except Exception as err:
-            logger.error(f"Error: {err}")
+            logger.exception(err)
         finally:
             logger.debug(f"Parsing file {file.name} finished")
 

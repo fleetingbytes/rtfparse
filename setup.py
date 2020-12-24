@@ -73,7 +73,7 @@ setup(
         python_requires=">=3.9",
         install_requires=requirements,
         entry_points={
-            "console_scripts": [f"{project_name} = {project_name}.__main__:main",
+            "console_scripts": [f"{project_name} = {project_name}.__main__:{project_name}",
                 ],
             },
         platforms=["any"],

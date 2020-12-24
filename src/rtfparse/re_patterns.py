@@ -50,17 +50,18 @@ digit = named_regex_group("digit", group(_digits))
 hdigit = named_regex_group("hdigit", group(_hdigits))
 minus = named_regex_group("minus", rb"-?")
 # int16 = minus + digit + rb"{1,5}"
-parameter = named_regex_group("param", minus + digit + rb"{1,10}")
+parameter = named_regex_group("parameter", minus + digit + rb"{1,10}")
 space = named_regex_group("space", rb" ")
 other = named_regex_group("other", group(rb"^" + _letters + _digits))
 
 
 ascii_letter_sequence = named_regex_group("control_name", ascii_letters)
-delimiter = named_regex_group("delimiter", rb"|".join((rb" ", parameter, other)))
+delimiter = named_regex_group("delimiter", rb"|".join((rb" ", parameter, other, rb"$")))
 symbol = named_regex_group("symbol", other)
 control_word_pattern = named_regex_group("control_word", rtf_backslash + ascii_letter_sequence + delimiter)
 pcdata_delimiter = no_capture(rb"|".join((rtf_brace_open, rtf_brace_close, control_word_pattern)))
 plain_text_pattern = named_regex_group("text", not_control_character + rb"+") + no_capture(control_character)
+probe_pattern = rb".."
 
 
 class Bytes_Regex():
@@ -72,6 +73,7 @@ class Bytes_Regex():
         print(self.pattern_bytes.decode("ascii"))
 
 
+probe = Bytes_Regex(named_regex_group("probe", probe_pattern))
 meaningful_bs = Bytes_Regex(rtf_backslash)
 # control_word = Bytes_Regex(rtf_backslash + ascii_letter_sequence + delimiter)
 control_word = Bytes_Regex(control_word_pattern)
