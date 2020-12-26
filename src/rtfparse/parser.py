@@ -7,6 +7,7 @@ import logging
 from collections import OrderedDict
 from rtfparse import re_patterns
 from rtfparse import entities
+from rtfparse import errors
 
 
 # Setup logging
@@ -59,6 +60,8 @@ class Rtf_Parser:
         logger.debug(f"Parsing file {file.name}")
         try:
             self.parsed = entities.Destination_Group(file)
+        except errors.UnexpectedEndOfFileError as err:
+            logger.error(f"{err}")
         except Exception as err:
             logger.exception(err)
         finally:

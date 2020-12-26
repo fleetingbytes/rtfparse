@@ -16,3 +16,7 @@ class WrongConfiguration(Error):
     def __init__(self, message, payload):
         self.message = message
         self.payload = payload
+
+
+class UnexpectedEndOfFileError(Error):
+    pass
