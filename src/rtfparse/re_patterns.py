@@ -50,17 +50,17 @@ rtf_brace_open = named_regex_group("group_start", not_preceded_by(unnamed_rtf_ba
 rtf_brace_close = named_regex_group("group_end", not_preceded_by(unnamed_rtf_backslash, rb"\}"))
 
 
-digit = named_regex_group("digit", group(_digits))
-hdigit = named_regex_group("hdigit", group(_hdigits))
 minus = named_regex_group("minus", rb"-?")
+digit = named_regex_group("digit", minus + group(_digits) + rb"{1,10}")
+hdigit = named_regex_group("hdigit", group(_hdigits))
 # int16 = minus + digit + rb"{1,5}"
-parameter_pattern = named_regex_group("parameter", minus + digit + rb"{1,10}")
+parameter_pattern = named_regex_group("parameter", digit)
 space = named_regex_group("space", rb" ")
 other = named_regex_group("other", group(rb"^" + _letters + _digits))
 
 
-ascii_letter_sequence = named_regex_group("control_name", ascii_letters)
-delimiter = named_regex_group("delimiter", rb"|".join((space, parameter_pattern, other, rb"$")))
+ascii_letter_sequence = named_regex_group("control_name", ascii_letters + parameter_pattern + rb"?")
+delimiter = named_regex_group("delimiter", rb"|".join((space, other, rb"$")))
 symbol = named_regex_group("symbol", other)
 control_word_pattern = named_regex_group("control_word", rtf_backslash + ascii_letter_sequence + delimiter)
 pcdata_delimiter = no_capture(rb"|".join((rtf_brace_open, rtf_brace_close, control_word_pattern)))

@@ -3,6 +3,9 @@
 
 import logging
 import pathlib
+import io
+# Typing
+from typing import Union
 
 
 # Setup logging
@@ -41,3 +44,10 @@ def warn(s: str) -> str:
     Creates a string highlighted as warning in log output
     """
     return " ".join(("◊", s))
+
+
+def what_is_being_parsed(file: Union[io.BufferedReader, io.BytesIO]) -> str:
+    if isinstance(file, io.BufferedReader):
+        return file.name
+    elif isinstance(file, io.BytesIO):
+        return repr(file)

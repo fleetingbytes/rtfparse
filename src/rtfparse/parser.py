@@ -4,10 +4,14 @@
 import io
 import re
 import logging
-from collections import OrderedDict
+# Own modules
 from rtfparse import re_patterns
 from rtfparse import entities
 from rtfparse import errors
+from rtfparse import utils
+# Typing
+from typing import Union
+from rtfparse import config_loader
 
 
 # Setup logging
@@ -15,57 +19,19 @@ logger = logging.getLogger(__name__)
 
 
 class Rtf_Parser:
-    probe_len = 42
-    @staticmethod
-    def start_group(match: re.Match) -> None:
-        logger.debug(f"Starting group")
-    @staticmethod
-    def parse_cw(match: re.Match) -> None:
-        logger.debug(f"Parsing control word")
-    @staticmethod
-    def parse_cs(match: re.Match) -> None:
-        logger.debug(f"Parsing control symbol")
-    @staticmethod
-    def parse_text(match: re.Match) -> None:
-        logger.debug(f"Parsing control symbol")
-    @staticmethod
-    def end_group(match: re.Match) -> None:
-        logger.debug(f"Ending group")
-    @staticmethod
-    def probe(file: io.BufferedReader) -> None:
-        original_position = file.tell()
-        probed = file.read(cls.probe_len)
-        file.seek(original_position)
-    action_dict = OrderedDict(
-        zip(
-            (
-                re_patterns.group_start,
-                re_patterns.control_word,
-                re_patterns.control_symbol,
-                re_patterns.group_end,
-                re_patterns.plain_text,
-            ),
-            (
-                start_group,
-                parse_cw,
-                parse_cs,
-                end_group,
-                parse_text,
-            ),
-           )
-    )
     def __init__(self) -> None:
         self.parsed = None
-    def parse_file(self, file: io.BufferedReader) -> None:
-        logger.debug(f"Parsing file {file.name}")
+    def parse_file(self, config: config_loader.Config, file: Union[io.BufferedReader, io.BytesIO]) -> None:
+        parsed_object = utils.what_is_being_parsed(file)
+        logger.info(f"Parsing the structure of {parsed_object}")
         try:
-            self.parsed = entities.Destination_Group(file)
+            self.parsed = entities.Group(config, file)
         except errors.UnexpectedEndOfFileError as err:
             logger.error(f"{err}")
         except Exception as err:
             logger.exception(err)
         finally:
-            logger.debug(f"Parsing file {file.name} finished")
+            logger.info(f"Structure of {parsed_object} parsed")
 
 
 if __name__ == "__main__":

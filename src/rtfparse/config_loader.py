@@ -38,16 +38,22 @@ class Config():
         self.path_to_config_file = cfg_path
         self.path_to_home = utils.provide_dir(self.path_to_config_file.parent)
         self.path_to_pyrtfparse_home = pathlib.Path.home() / utils.home_dir_name
-        self._subdir_dir = Preconfigured_Path(
-                internal_name="subdir_dir",
-                path=self.path_to_pyrtfparse_home / "subdir",
-                comment="some subdir",
+        self._email_rtf = Preconfigured_Path(
+                internal_name="email_rtf",
+                path=self.path_to_pyrtfparse_home / "email_rtf",
+                comment="Directory for RTF extracted from MS Outlook emails",
             )
+        self._html = Preconfigured_Path(
+                internal_name="html",
+                path=self.path_to_pyrtfparse_home / "html",
+                comment="Directory for HTML extracted from the email",
+            )
+        self.check_paths = (self._email_rtf,
+                            self._html,
+                           )
         self._wizard_has_run = False
         self.autoconfig = autoconfig
         self.read_config_file()
-        self.check_paths = (self._subdir_dir,
-                           )
         self.integrity_check()
     def __enter__(self):
         return self
@@ -75,7 +81,7 @@ class Config():
             for preconf_path in self.check_paths:
                 path_to_check = preconf_path.path
                 assert path_to_check.exists()
-        except AssertionError as e:
+        except AssertionError as err:
             logger.debug(f"Path not found, starting wizard")
             self.wizard(errors.WrongConfiguration(f"{self.path_to_config_file.name}: '{str(path_to_check)}', path does not exist!", preconf_path), autoconfig=self.autoconfig)
     def create_config_file(self) -> None:
@@ -89,11 +95,15 @@ class Config():
         self.config_parser.set("Paths", "# or a '\\' at the end of the final directory of a Windows path")
         self.config_parser.set("Paths", "# does not interfere with the path parser.")
         self.config_parser.set("Paths", "")
-        for preconf_path in (
-                self._subdir_dir,
-                ):
+        for preconf_path in self.check_paths:
             self.config_parser.set("Paths", f"# {preconf_path.comment[0].capitalize()}{preconf_path.comment[1:]}")
             self.config_parser.set("Paths", f"{preconf_path.internal_name}", f"{preconf_path.path}")
+        self.config_parser.add_section("Encoding")
+        self.config_parser.set("Encoding", "# Set default expected RTF encoding here")
+        self.config_parser.set("Encoding", "# RTF usually uses ANSI by defaul, but that's not specific enough.")
+        self.config_parser.set("Encoding", "# This specifies what exactly we mean by ANSI, e.g. cp1252 (Western Europe)")
+        self.config_parser.set("Encoding", "")
+        self.config_parser.set("Encoding", "default", "cp1252")
         with open(self.path_to_config_file, mode="w", encoding="utf-8") as configfh:
             self.config_parser.write(configfh)
         self.read_config_file()
@@ -121,7 +131,9 @@ class Config():
         Parses the configuration files into usable attributes
         """
         try:
-            self.subdir_dir = self.getpath("Paths", "subdir_dir")
+            self.email_rtf = self.getpath("Paths", "email_rtf")
+            self.html = self.getpath("Paths", "html")
+            self.default_encoding = self.config_parser.get("Encoding", "default")
         except ValueError:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exc().splitlines()
