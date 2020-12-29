@@ -178,11 +178,15 @@ class Group(Entity):
                 self.structure.append(Control_Symbol(self.config, file))
             else:
                 self.structure.append(Plain_Text(self.config, file))
+        # name the group like its first Control Word
+        # this way the renderer will be able to ignore entire groups
+        try:
+            if isinstance(self.structure[0], Control_Word):
+                self.name = self.structure[0].control_name
+        except IndexError:
+            pass
     def __repr__(self) -> str:
-        cwinfo = ""
-        if isinstance(self.structure[0], Control_Word):
-            cwinfo = f" {self.structure[0].control_name}"
-        return f"<Group{cwinfo}>"
+        return f"<Group {self.name}>"
 
 
 if __name__ == "__main__":

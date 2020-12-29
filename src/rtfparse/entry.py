@@ -60,6 +60,9 @@ def run(config: config_loader.Config) -> None:
         import extract_msg as em
         import compressed_rtf as cr
         msg = em.openMsg(f"{config.cli_args.msg}")
+        for attachment in msg.attachments:
+            with open(config.html / f"{attachment.longFilename}", mode="wb") as att_file:
+                att_file.write(attachment.data)
         decompressed_rtf = cr.decompress(msg.compressedRtf)
         with open((config.email_rtf / config.cli_args.msg.name).with_suffix(".rtf"), mode="wb") as email_rtf:
             email_rtf.write(decompressed_rtf)
@@ -68,7 +71,7 @@ def run(config: config_loader.Config) -> None:
             rp.parse_file(config, rtf_file)
         from rtfparse.renderers import encapsulated_html
         renderer = encapsulated_html.Encapsulated_HTML()
-        with open((config.html / config.cli_args.msg.name).with_suffix(".html"), mode="w") as htmlfile:
+        with open((config.html / config.cli_args.msg.name).with_suffix(".html"), mode="w", encoding="utf-8") as htmlfile:
             logger.info(f"Rendering the encapsulated HTML")
             renderer.render(rp.parsed, htmlfile)
             logger.info(f"Encapsulated HTML rendered")
