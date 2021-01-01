@@ -190,7 +190,7 @@ class Config():
         if "path does not exist" in error.message:
             reason = (f"{error.payload.internal_name} ({error.payload.path}) does not exist!")
             options = OrderedDict((
-                    ("A", "Automatically configure this and all remaining claws settings"),
+                    ("A", f"Automatically configure this and all remaining {utils.program_name} settings"),
                     ("C", "Create this path automatically"),
                     ("M", "Manually input correct path to use or to create"),
                     ("Q", f"Quit and edit `{error.payload.internal_name}` in {self.path_to_config_file.name}"),
