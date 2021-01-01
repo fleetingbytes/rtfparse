@@ -21,25 +21,25 @@ When you run `rtfparse` for the first time it will start a configuration wizard 
 In the configuration wizard you can press `A` for care-free automatic configuration, which would look something like this:
 
 ```
-    $ rtfparse
-    Config file missing, creating new default config file
-    
-     ____ ____ __ _ ____ _ ____ _  _ ____ ____ ___ _ ____ __ _
-     |___ [__] | \| |--- | |__, |__| |--< |--|  |  | [__] | \|
-     _  _ _ ___  ____ ____ ___
-     |/\| |  /__ |--| |--< |__>
-    
-    
-    ◊ email_rtf (C:\Users\nagidal\rtfparse\email_rtf) does not exist!
-    
-    (A) Automatically configure this and all remaining rtfparse settings
-    (C) Create this path automatically
-    (M) Manually input correct path to use or to create
-    (Q) Quit and edit `email_rtf` in rtfparse_configuration.ini
-    
-    Created directory C:\Users\nagidal\rtfparse
-    Created directory C:\Users\nagidal\rtfparse\email_rtf
-    Created directory C:\Users\nagidal\rtfparse\html
+$ rtfparse
+Config file missing, creating new default config file
+
+ ____ ____ __ _ ____ _ ____ _  _ ____ ____ ___ _ ____ __ _
+ |___ [__] | \| |--- | |__, |__| |--< |--|  |  | [__] | \|
+ _  _ _ ___  ____ ____ ___
+ |/\| |  /__ |--| |--< |__>
+
+
+◊ email_rtf (C:\Users\nagidal\rtfparse\email_rtf) does not exist!
+
+(A) Automatically configure this and all remaining rtfparse settings
+(C) Create this path automatically
+(M) Manually input correct path to use or to create
+(Q) Quit and edit `email_rtf` in rtfparse_configuration.ini
+
+Created directory C:\Users\nagidal\rtfparse
+Created directory C:\Users\nagidal\rtfparse\email_rtf
+Created directory C:\Users\nagidal\rtfparse\html
 ```
 
 `rtfparse` also creates the folder `.rtfparse` (beginning with a dot) in your home directory where it saves its default configuration and its log files.
