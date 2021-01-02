@@ -183,7 +183,7 @@ class Group(Entity):
             else:
                 self.structure.append(Plain_Text(self.config, file))
         # name the group like its first Control Word
-        # this way the renderer will be able to ignore entire groups
+        # this way the renderer will be able to ignore entire groups based on their first control word
         try:
             if isinstance(self.structure[0], Control_Word):
                 self.name = self.structure[0].control_name
