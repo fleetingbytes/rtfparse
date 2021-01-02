@@ -82,7 +82,6 @@ def run(config: config_loader.Config) -> None:
         de_encapsulate(rp, config.cli_args.de_encapsulate_html)
 
 
-
 def cli_start(version) -> None:
     """
     Entry point for any component start from the commmand line

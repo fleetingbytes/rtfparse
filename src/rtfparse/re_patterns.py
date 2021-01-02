@@ -56,11 +56,12 @@ hdigit = named_regex_group("hdigit", group(_hdigits))
 # int16 = minus + digit + rb"{1,5}"
 parameter_pattern = named_regex_group("parameter", digit)
 space = named_regex_group("space", rb" ")
+newline = named_regex_group("newline", _newline)
 other = named_regex_group("other", group(rb"^" + _letters + _digits))
 
 
 ascii_letter_sequence = named_regex_group("control_name", ascii_letters + parameter_pattern + rb"?")
-delimiter = named_regex_group("delimiter", rb"|".join((space, other, rb"$")))
+delimiter = named_regex_group("delimiter", rb"|".join((space, newline, other, rb"$")))
 symbol = named_regex_group("symbol", other)
 control_word_pattern = named_regex_group("control_word", rtf_backslash + ascii_letter_sequence + delimiter)
 pcdata_delimiter = no_capture(rb"|".join((rtf_brace_open, rtf_brace_close, control_word_pattern)))

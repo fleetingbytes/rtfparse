@@ -69,6 +69,7 @@ class Control_Word(Entity):
         logger.debug(f"Reading Control Word at file position {file.tell()}")
         self.control_name = "missing"
         self.parameter = ""
+        self.bindata = b""
         self.start_position = file.tell()
         logger.debug(f"Starting at file position {self.start_position}")
         probe = file.read(CONTROL_WORD)
@@ -86,6 +87,9 @@ class Control_Word(Entity):
                 logger.debug(f"Delimiter is {match.group('other').decode(self.config.default_encoding)}, len: {len(match.group('delimiter'))}")
                 target_position -= len(match.group("delimiter"))
             file.seek(target_position)
+            # handle \binN:
+            if self.control_name == "bin":
+               self.bindata = file.read(utils.twos_complement(self.parameter, INTEGER_MAGNITUDE))
         else:
             logger.warning(f"Missing Control Word")
             file.seek(self.start_position)
