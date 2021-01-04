@@ -13,7 +13,7 @@ import io
 logger = logging.getLogger(__name__)
 
 
-class Encapsulated_HTML(Renderer):
+class De_encapsulate_HTML(Renderer):
     def __init__(self, ) -> None:
         super().__init__()
         self.ignore_rtf = False
@@ -27,6 +27,8 @@ class Encapsulated_HTML(Renderer):
         self.ignore_groups = (
                 "fonttbl",
                 "colortbl",
+                "generator",
+                "formatConverter",
             )
     def ignore_rtf_toggle(self, cw: entities.Control_Word) -> str:
         if cw.parameter == "" or cw.parameter == 1:

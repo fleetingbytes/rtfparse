@@ -8,7 +8,6 @@ import re
 from rtfparse import re_patterns
 from rtfparse import utils
 from rtfparse import errors
-from rtfparse import config_loader
 from rtfparse.enums import Bytestring_Type
 
 
@@ -53,8 +52,10 @@ class Entity:
                 file.seek(original_position)
                 logger.debug(f"Probe moved to position {file.tell()}")
                 if not probed:
-                    logger.warning(f"Reached unexpected end of file.")
-                    raise errors.UnexpectedEndOfFileError(f"at position {file.tell()}")
+                    logger.debug(f"Reached unexpected end of file.")
+                    result = Bytestring_Type.GROUP_END
+                    break
+                    # raise errors.UnexpectedEndOfFileError(f"at position {file.tell()}")
                 continue
             break
         logger.debug(f"Probe {result = }")
@@ -63,9 +64,9 @@ class Entity:
 
 
 class Control_Word(Entity):
-    def __init__(self, config: config_loader.Config, file: io.BufferedReader) -> None:
+    def __init__(self, encoding: str, file: io.BufferedReader) -> None:
         super().__init__()
-        self.config = config
+        self.encoding = encoding
         logger.debug(f"Reading Control Word at file position {file.tell()}")
         self.control_name = "missing"
         self.parameter = ""
@@ -74,17 +75,17 @@ class Control_Word(Entity):
         logger.debug(f"Starting at file position {self.start_position}")
         probe = file.read(CONTROL_WORD)
         if (match := re_patterns.control_word.match(probe)):
-            self.control_name = match.group("control_name").decode(self.config.default_encoding)
+            self.control_name = match.group("control_name").decode(self.encoding)
             logger.debug(f"Preliminary {self.control_name = }")
             parameter = match.group("parameter")
             if parameter is not None:
-                self.parameter = int(parameter.decode(self.config.default_encoding))
+                self.parameter = int(parameter.decode(self.encoding))
                 logger.debug(f"{self.parameter = }")
                 self.control_name = self.control_name.removesuffix(str(self.parameter))
                 logger.debug(f"Final {self.control_name = }")
             target_position = self.start_position + match.span()[1]
             if match.group("other"):
-                logger.debug(f"Delimiter is {match.group('other').decode(self.config.default_encoding)}, len: {len(match.group('delimiter'))}")
+                logger.debug(f"Delimiter is {match.group('other').decode(self.encoding)}, len: {len(match.group('delimiter'))}")
                 target_position -= len(match.group("delimiter"))
             file.seek(target_position)
             # handle \binN:
@@ -98,16 +99,16 @@ class Control_Word(Entity):
 
 
 class Control_Symbol(Entity):
-    def __init__(self, config: config_loader.Config, file: io.BufferedReader) -> None:
+    def __init__(self, encoding: str, file: io.BufferedReader) -> None:
         super().__init__()
-        self.config = config
+        self.encoding = encoding
         self.start_position = file.tell()
         logger.debug(f"Reading Symbol at file position {self.start_position}")
         self.char = ""
         self.text = chr(file.read(SYMBOL)[-1])
         if self.text == "'":
-            self.char = file.read(SYMBOL).decode(self.config.default_encoding)
-            self.text = bytes((int(self.char, base=16), )).decode(self.config.default_encoding)
+            self.char = file.read(SYMBOL).decode(self.encoding)
+            self.text = bytes((int(self.char, base=16), )).decode(self.encoding)
             logger.debug(f"Encountered escaped ANSI character, read two more bytes: {self.char}, character: {self.text}")
             if self.text in "\\{}":
                 file.seek(file.tell() - SYMBOL)
@@ -116,9 +117,9 @@ class Control_Symbol(Entity):
 
 
 class Plain_Text(Entity):
-    def __init__(self, config: config_loader.Config, file: io.BufferedReader) -> None:
+    def __init__(self, encoding: str, file: io.BufferedReader) -> None:
         super().__init__()
-        self.config = config
+        self.encoding = encoding
         self.text = ""
         logger.debug(f"Constructing Plain_Text")
         while True:
@@ -128,7 +129,7 @@ class Plain_Text(Entity):
             # see if we have read all the plain text there is:
             if (match := re_patterns.plain_text.match(read)):
                 logger.debug(f"This matches the plain text pattern")
-                _text = match.group("text").decode(self.config.default_encoding)
+                _text = match.group("text").decode(self.encoding)
                 logger.debug(f"{_text = }")
                 self.text = "".join((self.text, _text))
                 logger.debug(f"{self.text = }")
@@ -146,10 +147,10 @@ class Plain_Text(Entity):
 
 
 class Group(Entity):
-    def __init__(self, config: config_loader.Config, file: io.BufferedReader) -> None:
+    def __init__(self, encoding: str, file: io.BufferedReader) -> None:
         super().__init__()
         logger.debug(f"Group.__init__")
-        self.config = config
+        self.encoding = encoding
         self.known = False
         self.name = "unknown"
         self.ignorable = False
@@ -164,7 +165,7 @@ class Group(Entity):
             self.known = bool(match.group("group_start"))
             self.ignorable = bool(match.group("ignorable"))
             if not self.ignorable:
-                file.seek(-IGNORABLE, io.SEEK_CUR)
+                file.seek(self.start_position + GROUP_START - IGNORABLE)
                 logger.debug(f"Returned to position {file.tell()}")
         else:
             logger.warning(utils.warn(f"Expected a group but found no group start. Creating unknown group"))
@@ -172,16 +173,16 @@ class Group(Entity):
         while True:
             probed = self.probe(re_patterns.probe, file)
             if probed is Bytestring_Type.CONTROL_WORD:
-                self.structure.append(Control_Word(self.config, file))
+                self.structure.append(Control_Word(self.encoding, file))
             elif probed is Bytestring_Type.GROUP_END:
                 file.read(GROUP_END)
                 break
             elif probed is Bytestring_Type.GROUP_START:
-                self.structure.append(Group(self.config, file))
+                self.structure.append(Group(self.encoding, file))
             elif probed is Bytestring_Type.CONTROL_SYMBOL:
-                self.structure.append(Control_Symbol(self.config, file))
+                self.structure.append(Control_Symbol(self.encoding, file))
             else:
-                self.structure.append(Plain_Text(self.config, file))
+                self.structure.append(Plain_Text(self.encoding, file))
         # name the group like its first Control Word
         # this way the renderer will be able to ignore entire groups based on their first control word
         try:

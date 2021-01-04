@@ -44,7 +44,7 @@ Created directory C:\Users\nagidal\rtfparse\html
 
 `rtfparse` also creates the folder `.rtfparse` (beginning with a dot) in your home directory where it saves its default configuration and its log files.
 
-# Usage
+# Usage From Command Line
 
 Use the `rtfparse` executable from the command line. For example if you want to de-encapsulate the HTML from an RTF file, do it like this:
 
@@ -52,9 +52,13 @@ Use the `rtfparse` executable from the command line. For example if you want to 
 
 Or you can de-encapsulate the HTML from an MS Outlook message, thanks to [extract_msg](https://github.com/TeamMsgExtractor/msg-extractor) and [compressed_rtf](https://github.com/delimitry/compressed_rtf):
 
-    rtfparse -m "path/to/email.msg" -d "path/to/de_encapsulated.html"
+    rtfparse -m "path/to/email.msg" -d
 
 Command reference is in `rtfparse --help`.
+
+# Usage in python module
+
+See 'minimal.py' for an example.
 
 # RTF Specification Links
 

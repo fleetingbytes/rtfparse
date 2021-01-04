@@ -19,7 +19,7 @@ from rtfparse import utils
 from rtfparse import config_loader
 from rtfparse import version
 from rtfparse.parser import Rtf_Parser
-from rtfparse.renderers import encapsulated_html
+from rtfparse.renderers import de_encapsulate_html
 
 
 # Setup logging
@@ -51,24 +51,26 @@ def argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("--autoconfig", action="store_true", help="Configure rtfparse automatically").completer = EC
     parser.add_argument("-f", "--file", action="store", metavar="PATH", type=pathlib.Path, help="path to the rtf file").completer = EC
     parser.add_argument("-m", "--msg", action="store", metavar="PATH", type=pathlib.Path, help="Parse RTF from MS Outlook's .msg file").completer = EC
-    parser.add_argument("-d", "--de-encapsulate-html", action="store", metavar="PATH", type=pathlib.Path, help="De-encapsulate HTML from RTF").completer = EC
+    parser.add_argument("-d", "--de-encapsulate-html", action="store_true", help="De-encapsulate HTML from RTF").completer = EC
     return parser
 
 
 def de_encapsulate(rp: Rtf_Parser, target_file: pathlib.Path) -> None:
-    renderer = encapsulated_html.Encapsulated_HTML()
-    with open(target_file, mode="w", encoding="utf-8") as htmlfile:
+    renderer = de_encapsulate_html.De_encapsulate_HTML()
+    with open(target_file, mode="w", encoding="cp1252") as htmlfile:
         logger.info(f"Rendering the encapsulated HTML")
         renderer.render(rp.parsed, htmlfile)
         logger.info(f"Encapsulated HTML rendered")
 
 
 def run(config: config_loader.Config) -> None:
-    rp = Rtf_Parser()
     if config.cli_args.file and config.cli_args.file.exists():
+        file_name = config.cli_args.file.name
         with open(config.cli_args.file, mode="rb") as rtf_file:
-            rp.parse_file(config, rtf_file)
+            rp = Rtf_Parser(rtf_file=rtf_file)
+            rp.parse_file()
     elif config.cli_args.msg:
+        file_name = config.cli_args.msg.name
         msg = em.openMsg(f"{config.cli_args.msg}")
         for attachment in msg.attachments:
             with open(config.html / f"{attachment.longFilename}", mode="wb") as att_file:
@@ -77,9 +79,10 @@ def run(config: config_loader.Config) -> None:
         with open((config.email_rtf / config.cli_args.msg.name).with_suffix(".rtf"), mode="wb") as email_rtf:
             email_rtf.write(decompressed_rtf)
         with io.BytesIO(decompressed_rtf) as rtf_file:
-            rp.parse_file(config, rtf_file)
+            rp = Rtf_Parser(rtf_file=rtf_file)
+            rp.parse_file()
     if config.cli_args.de_encapsulate_html:
-        de_encapsulate(rp, config.cli_args.de_encapsulate_html)
+        de_encapsulate(rp, (config.html / file_name).with_suffix(".html"))
 
 
 def cli_start(version) -> None:
