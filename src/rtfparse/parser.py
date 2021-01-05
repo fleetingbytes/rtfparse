@@ -8,7 +8,6 @@ import pathlib
 # Own modules
 from rtfparse import re_patterns
 from rtfparse import entities
-from rtfparse import errors
 from rtfparse import utils
 # Typing
 from typing import Optional
@@ -40,14 +39,17 @@ class Rtf_Parser:
                     "pc",
                     "pca",
                 )
+        # Gather all control words, which could define an encoding:
         names = tuple(filter(lambda item: isinstance(item, entities.Control_Word) and item.control_name in recognized_encodings, group.structure))
-        # Check if the ANSI code page is set:
+        # Check if the ANSI code page is set as a parameter of any of the control words:
         cp = None
         for item in names:
             # if any item is a Control_Word which has a parameter, we assume that this is the parameter of \ansicpg, and that corresponds to the codepage we are looking for
             if item.parameter:
                 param = item.parameter
-        if not param:
+        if param:
+            encoding = f"cp{param}"
+        else:
             if names[0].control_name == "ansi":
                 encoding = "ansi"
             elif names[0].control_name == "mac":
@@ -56,9 +58,8 @@ class Rtf_Parser:
                 encoding = "cp437"
             elif names[0].control_name == "pca":
                 encoding = "cp850"
-        else:
-            encoding = f"cp{param}"
         file.seek(0)
+        logger.info(f"recognized encoding {encoding}")
         return encoding
     def parse_file(self) -> entities.Group:
         if self.rtf_path is not None:

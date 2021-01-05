@@ -4,7 +4,11 @@ RTF Parser. So far it can only de-encapsulate HTML content from an RTF, but it p
 
 # Dependencies
 
-See `requirements.txt`.
+```
+argcomplete
+extract-msg
+compressed_rtf
+```
 
 # Installation
 
@@ -16,7 +20,7 @@ Installation creates an executable file `rtfparse` in your python scripts folder
 
 # First Run
 
-When you run `rtfparse` for the first time it will start a configuration wizard which will guide you through the process of creating a default configuration file and specifying the location of its folders. (These folders don't mean much yet, they are more or less placeholders for upcoming program features.)
+When you run `rtfparse` for the first time it will start a configuration wizard which will guide you through the process of creating a default configuration file and specifying the location of its folders. (These folders serve as locations for saving extracted rtf or html files.)
 
 In the configuration wizard you can press `A` for care-free automatic configuration, which would look something like this:
 
@@ -48,17 +52,34 @@ Created directory C:\Users\nagidal\rtfparse\html
 
 Use the `rtfparse` executable from the command line. For example if you want to de-encapsulate the HTML from an RTF file, do it like this:
 
-    rtfparse -f "path/to/rtf_file.rtf" -d "path/to/de_encapsulated.html"
+    rtfparse -f "path/to/rtf_file.rtf" -d
 
 Or you can de-encapsulate the HTML from an MS Outlook message, thanks to [extract_msg](https://github.com/TeamMsgExtractor/msg-extractor) and [compressed_rtf](https://github.com/delimitry/compressed_rtf):
 
     rtfparse -m "path/to/email.msg" -d
 
-Command reference is in `rtfparse --help`.
+The resulting html file will be saved to the `html` folder you set in the `rtfparse_configuration.ini`. Command reference is in `rtfparse --help`.
 
 # Usage in python module
 
-See 'minimal.py' for an example.
+```
+import pathlib
+from rtfparse.parser import Rtf_Parser
+from rtfparse.renderers import de_encapsulate_html
+
+
+source_path = pathlib.Path(r"D:\trace\email\test_mail_sw_release.rtf")
+target_path = pathlib.Path(r"D:\trace\email\extracted_with_rtfparse.html")
+
+
+parser = Rtf_Parser(rtf_path=source_path)
+parsed = parser.parse_file()
+
+
+renderer = de_encapsulate_html.De_encapsulate_HTML()
+with open(target_path, mode="w", encoding="utf-8") as html_file:
+    renderer.render(parsed, html_file)
+```
 
 # RTF Specification Links
 
