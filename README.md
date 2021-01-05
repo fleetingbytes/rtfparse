@@ -14,7 +14,7 @@ compressed_rtf
 
 Install rtfparse from your local repository with pip:
 
-    pip install ./rtfparse
+    pip install rtfparse
 
 Installation creates an executable file `rtfparse` in your python scripts folder which should be in your $PATH. 
 
