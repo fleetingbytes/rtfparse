@@ -57,7 +57,7 @@ def argument_parser() -> argparse.ArgumentParser:
 
 def de_encapsulate(rp: Rtf_Parser, target_file: pathlib.Path) -> None:
     renderer = de_encapsulate_html.De_encapsulate_HTML()
-    with open(target_file, mode="w", encoding="cp1252") as htmlfile:
+    with open(target_file, mode="w", encoding="utf-8") as htmlfile:
         logger.info(f"Rendering the encapsulated HTML")
         renderer.render(rp.parsed, htmlfile)
         logger.info(f"Encapsulated HTML rendered")
