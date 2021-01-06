@@ -52,6 +52,7 @@ def argument_parser() -> argparse.ArgumentParser:
     parser.add_argument("-f", "--file", action="store", metavar="PATH", type=pathlib.Path, help="path to the rtf file").completer = EC
     parser.add_argument("-m", "--msg", action="store", metavar="PATH", type=pathlib.Path, help="Parse RTF from MS Outlook's .msg file").completer = EC
     parser.add_argument("-d", "--de-encapsulate-html", action="store_true", help="De-encapsulate HTML from RTF").completer = EC
+    parser.add_argument("-i", "--embed-img", action="store_true", help="Embed images from email to HTML").completer = EC
     return parser
 
 
