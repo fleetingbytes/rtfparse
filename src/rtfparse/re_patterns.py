@@ -70,6 +70,11 @@ probe_pattern = rb".."
 
 
 class Bytes_Regex():
+    """
+    This wraps `re.pattern` objects and gives them a method `regex101` which
+    prints out the pattern in such a manner that it can be copy-pasted
+    to regex101.com.
+    """
     def __init__(self, Bytes: bytes, flags:re.RegexFlag=0) -> None:
         self.pattern_bytes = Bytes
         self.pattern = re.compile(Bytes, flags)

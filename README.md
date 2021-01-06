@@ -16,7 +16,7 @@ Install rtfparse from your local repository with pip:
 
     pip install rtfparse
 
-Installation creates an executable file `rtfparse` in your python scripts folder which should be in your $PATH. 
+Installation creates an executable file `rtfparse` in your python scripts folder which should be in your `$PATH`. 
 
 # First Run
 
@@ -68,8 +68,8 @@ from rtfparse.parser import Rtf_Parser
 from rtfparse.renderers import de_encapsulate_html
 
 
-source_path = pathlib.Path(r"D:\trace\email\test_mail_sw_release.rtf")
-target_path = pathlib.Path(r"D:\trace\email\extracted_with_rtfparse.html")
+source_path = pathlib.Path(r"path/to/your/rtf/document.rtf")
+target_path = pathlib.Path(r"path/to/your/html/de_encapsulated.html")
 
 
 parser = Rtf_Parser(rtf_path=source_path)
