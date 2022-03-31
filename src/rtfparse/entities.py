@@ -27,6 +27,7 @@ PLAIN_TEXT = CONTROL_WORD = BACKSLASH + MAX_CW_LETTERS + MINUS + len(str((1 << I
 class Entity:
     def __init__(self) -> None:
         self.text = ""
+
     @classmethod
     def probe(cls, pattern: re_patterns.Bytes_Regex, file: io.BufferedReader) -> Bytestring_Type:
         logger.debug(f"Probing file at position {file.tell()}")
@@ -64,7 +65,7 @@ class Entity:
 
 
 class Control_Word(Entity):
-    def __init__(self, encoding: str, file: io.BufferedReader) -> None:
+    def __init__(self, encoding: str, file: io.BufferedReader, parents=None) -> None:
         super().__init__()
         self.encoding = encoding
         logger.debug(f"Reading Control Word at file position {file.tell()}")
@@ -72,6 +73,10 @@ class Control_Word(Entity):
         self.parameter = ""
         self.bindata = b""
         self.start_position = file.tell()
+        self.parents = []
+        if parents:
+            self.parents = self.parents + parents
+
         logger.debug(f"Starting at file position {self.start_position}")
         probe = file.read(CONTROL_WORD)
         if (match := re_patterns.control_word.match(probe)):
@@ -94,33 +99,41 @@ class Control_Word(Entity):
         else:
             logger.warning(f"Missing Control Word")
             file.seek(self.start_position)
+
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.control_name}{self.parameter}>"
 
 
 class Control_Symbol(Entity):
-    def __init__(self, encoding: str, file: io.BufferedReader) -> None:
+    def __init__(self, encoding: str, file: io.BufferedReader, parents=None) -> None:
         super().__init__()
         self.encoding = encoding
         self.start_position = file.tell()
         logger.debug(f"Reading Symbol at file position {self.start_position}")
         self.char = ""
         self.text = chr(file.read(SYMBOL)[-1])
+        self.parents = []
+        if parents:
+            self.parents = self.parents + parents
         if self.text == "'":
             self.char = file.read(SYMBOL).decode(self.encoding)
             self.text = bytes((int(self.char, base=16), )).decode(self.encoding)
             logger.debug(f"Encountered escaped ANSI character, read two more bytes: {self.char}, character: {self.text}")
             if self.text in "\\{}":
                 file.seek(file.tell() - SYMBOL)
+
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.text}>"
 
 
 class Plain_Text(Entity):
-    def __init__(self, encoding: str, file: io.BufferedReader) -> None:
+    def __init__(self, encoding: str, file: io.BufferedReader, parents=None) -> None:
         super().__init__()
         self.encoding = encoding
         self.text = ""
+        self.parents = []
+        if parents:
+            self.parents = self.parents + parents
         logger.debug(f"Constructing Plain_Text")
         while True:
             self.start_position = file.tell()
@@ -142,12 +155,13 @@ class Plain_Text(Entity):
                 file.seek(self.start_position)
                 break
         logger.debug(f"Returned to position {file.tell()}")
+
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.text}>"
 
 
 class Group(Entity):
-    def __init__(self, encoding: str, file: io.BufferedReader) -> None:
+    def __init__(self, encoding: str, file: io.BufferedReader, parents=None) -> None:
         super().__init__()
         logger.debug(f"Group.__init__")
         self.encoding = encoding
@@ -155,6 +169,9 @@ class Group(Entity):
         self.name = "unknown"
         self.ignorable = False
         self.structure = list()
+        self.parents = []
+        if parents:
+            self.parents = self.parents + parents
         parsed_object = utils.what_is_being_parsed(file)
         logger.debug(f"Creating destination group from {parsed_object}")
         self.start_position = file.tell()
@@ -173,23 +190,26 @@ class Group(Entity):
         while True:
             probed = self.probe(re_patterns.probe, file)
             if probed is Bytestring_Type.CONTROL_WORD:
-                self.structure.append(Control_Word(self.encoding, file))
+                self.structure.append(Control_Word(self.encoding, file, parents=self.parents+[self.name]))
+                if len(self.structure) == 1:
+                    # name the group like its first Control Word
+                    # this way the renderer will be able to ignore entire groups based on their first control word
+                    try:
+                        if isinstance(self.structure[0], Control_Word):
+                            self.name = self.structure[0].control_name
+                    except IndexError:
+                        pass
+
             elif probed is Bytestring_Type.GROUP_END:
                 file.read(GROUP_END)
                 break
             elif probed is Bytestring_Type.GROUP_START:
-                self.structure.append(Group(self.encoding, file))
+                self.structure.append(Group(self.encoding, file, parents=self.parents+[self.name]))
             elif probed is Bytestring_Type.CONTROL_SYMBOL:
-                self.structure.append(Control_Symbol(self.encoding, file))
+                self.structure.append(Control_Symbol(self.encoding, file, parents=self.parents+[self.name]))
             else:
-                self.structure.append(Plain_Text(self.encoding, file))
-        # name the group like its first Control Word
-        # this way the renderer will be able to ignore entire groups based on their first control word
-        try:
-            if isinstance(self.structure[0], Control_Word):
-                self.name = self.structure[0].control_name
-        except IndexError:
-            pass
+                self.structure.append(Plain_Text(self.encoding, file, parents=self.parents+[self.name]))
+
     def __repr__(self) -> str:
         return f"<Group {self.name}>"
 
