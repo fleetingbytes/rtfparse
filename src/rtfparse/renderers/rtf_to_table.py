@@ -32,6 +32,9 @@ class RTFTableToHTML(Renderer):
 
         if cw.control_name in table_control_words:
             return table_control_words.get(cw.control_name)
+        elif cw.control_name == 'pard':
+            self.text_align = ''
+            return ""
         elif cw.control_name == "cellx":
             return self.cell_width(cw)
         elif cw.control_name == "li":
