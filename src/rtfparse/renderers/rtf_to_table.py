@@ -7,7 +7,7 @@ class RTFTableToHTML(Renderer):
         super().__init__()
 
         # only groups with these names will be looked into
-        self.important_groups = ["unknown", "trowd", "intbl", "animtext", "line", "cell", "row", "field", "fldinst"]
+        self.important_groups = ["unknown", "trowd", "intbl", "animtext", "line", "cell", "row", "field", "fldinst", "line"]
 
         self.rendered = ''
 
