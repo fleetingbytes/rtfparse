@@ -1,3 +1,4 @@
 argcomplete
 extract-msg
 compressed_rtf
+bs4
