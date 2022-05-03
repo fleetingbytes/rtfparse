@@ -211,6 +211,8 @@ class RTFToHTMLSoup(Renderer):
             self.current_cell.pre.append(table_control_words.get(cw.control_name))
         elif cw.control_name == 'pard':
             pass
+        elif cw.control_name == 'trhdr':
+            self.mark_header(cw)
         elif cw.control_name == "cellx":
             self.cell_width(cw)
         elif cw.control_name == "li":
@@ -285,6 +287,10 @@ class RTFToHTMLSoup(Renderer):
         self.row.append(self.current_cell)
         self.current_cell = self.rendered.new_tag('td', style='')
         self.current_cell.append(self.rendered.new_tag('pre'))
+        
+    def mark_header(self, cw: entities.Control_Word) -> None:
+        self.table['class'] = 'header_row'
+                
     @staticmethod
     def render_symbol(item: entities.Control_Symbol) -> None:
         # Obsolete formula character used by Word 5.1 for Macintosh
