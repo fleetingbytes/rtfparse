@@ -43,6 +43,7 @@ class Rtf_Parser:
         names = tuple(filter(lambda item: isinstance(item, entities.Control_Word) and item.control_name in recognized_encodings, group.structure))
         # Check if the ANSI code page is set as a parameter of any of the control words:
         cp = None
+        param = None
         for item in names:
             # if any item is a Control_Word which has a parameter, we assume that this is the parameter of \ansicpg, and that corresponds to the codepage we are looking for
             if item.parameter:
