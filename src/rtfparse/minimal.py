@@ -2,9 +2,9 @@
 
 
 import pathlib
+
 from rtfparse.parser import Rtf_Parser
 from rtfparse.renderers import de_encapsulate_html
-
 
 source_path = pathlib.Path(r"path/to/your/rtf/document.rtf")
 target_path = pathlib.Path(r"path/to/your/html/de_encapsulated.html")
