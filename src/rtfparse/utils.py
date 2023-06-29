@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 
+import io
 import logging
 import pathlib
-import io
+
 # Typing
 from typing import Union
-
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ configuration_file_name = f"{program_name}_configuration.ini"
 def provide_dir(directory: pathlib.Path) -> pathlib.Path:
     """
     Checks if there is a directory of name `dir_name` in the user home path.
-    If not, it will try to create one. 
+    If not, it will try to create one.
     """
     if directory.exists() and directory.is_dir():
         logger.debug(f"Found directory {str(directory)}")

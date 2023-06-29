@@ -99,7 +99,12 @@ def create_dict_config(directory: pathlib.Path, all_log: str, info_log: str, err
     }
 
     root_logger_conf = {
-        "handlers": ["root_file_handler", "root_console_handler", "custom_error_file_handler", "custom_info_file_handler"],
+        "handlers": [
+            "root_file_handler",
+            "root_console_handler",
+            "custom_error_file_handler",
+            "custom_info_file_handler",
+        ],
         "level": "DEBUG",
     }
 
@@ -117,4 +122,3 @@ def create_dict_config(directory: pathlib.Path, all_log: str, info_log: str, err
         "incremental": False,
     }
     return dict_config
-
