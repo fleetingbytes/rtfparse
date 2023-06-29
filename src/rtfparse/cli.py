@@ -25,7 +25,7 @@ def setup_logger(directory: Path) -> logging.Logger:
     try:
         provide_dir(directory)
         logger_config = logging_conf.create_dict_config(
-            directory, "debug.log", "info.log", "errors.log"
+            directory, "rtfparse.debug.log", "rtfparse.info.log", "rtfparse.errors.log"
         )
     except FileExistsError:
         logger.error(
@@ -99,6 +99,7 @@ def run(cli_args: Namespace) -> None:
     elif cli_args.msg_file:
         msg = em.openMsg(f"{cli_args.msg_file}")
         if cli_args.attachments_dir:
+            provide_dir(cli_args.attachments_dir)
             for attachment in msg.attachments:
                 with open(
                     cli_args.attachments_dir / f"{attachment.longFilename}", mode="wb"

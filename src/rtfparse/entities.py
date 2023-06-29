@@ -6,7 +6,7 @@ import logging
 import re
 
 # Own modules
-from rtfparse import errors, re_patterns, utils
+from rtfparse import re_patterns, utils
 from rtfparse.enums import Bytestring_Type
 
 # Setup logging
@@ -56,7 +56,6 @@ class Entity:
                     logger.debug(f"Reached unexpected end of file.")
                     result = Bytestring_Type.GROUP_END
                     break
-                    # raise errors.UnexpectedEndOfFileError(f"at position {file.tell()}")
                 continue
             break
         logger.debug(f"Probe {result = }")

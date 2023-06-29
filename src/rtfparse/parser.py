@@ -10,7 +10,7 @@ import re
 from typing import Optional, Union
 
 # Own modules
-from rtfparse import config_loader, entities, re_patterns, utils
+from rtfparse import entities, re_patterns, utils
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -53,7 +53,13 @@ class Rtf_Parser:
             if item.parameter:
                 param = item.parameter
         if param:
-            encoding = f"cp{param}"
+            if param == 65001:
+                logger.warning(
+                    "Found encoding 65001, but often this is actually cp1252, so I'm overriding it"
+                )
+                encoding = "cp1252"
+            else:
+                encoding = f"cp{param}"
         else:
             if names[0].control_name == "ansi":
                 encoding = "ansi"
