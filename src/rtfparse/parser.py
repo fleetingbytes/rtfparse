@@ -5,6 +5,7 @@ import io
 import logging
 import pathlib
 import re
+from argparse import Namespace
 
 # Typing
 from typing import Optional, Union
@@ -26,7 +27,9 @@ class Rtf_Parser:
         self.rtf_file = rtf_file
         if not (self.rtf_path or self.rtf_file):
             raise ValueError("Need `rtf_path` or `rtf_file` argument")
-        self.ENCODING_PROBE = 48  # look for encoding information in the first 48 bytes of the file
+        self.ENCODING_PROBE = (
+            48  # look for encoding information in the first 48 bytes of the file
+        )
 
     def read_encoding(self, file: Union[io.BufferedReader, io.BytesIO]) -> str:
         probed = file.read(self.ENCODING_PROBE)
@@ -52,17 +55,22 @@ class Rtf_Parser:
             # if any item is a Control_Word which has a parameter, we assume that this is the parameter of \ansicpg, and that corresponds to the codepage we are looking for
             if item.parameter:
                 param = item.parameter
+            else:
+                param = None
         if param:
             if param == 65001:
                 logger.warning(
-                    "Found encoding 65001, but often this is actually cp1252, so I'm overriding it"
+                    "Found encoding '65001', but often this is actually 'cp1252', so I'm taking that"
                 )
                 encoding = "cp1252"
             else:
                 encoding = f"cp{param}"
         else:
             if names[0].control_name == "ansi":
-                encoding = "ansi"
+                logger.warning(
+                    "Found encoding 'ansi', but often this is actually 'cp1252', so I'm taking that"
+                )
+                encoding = "cp1252"
             elif names[0].control_name == "mac":
                 encoding = "mac_roman"
             elif names[0].control_name == "pc":
@@ -87,6 +95,8 @@ class Rtf_Parser:
             self.parsed = entities.Group(encoding, file)
         except Exception as err:
             logger.exception(err)
+            self.parsed == Namespace()
+            self.parsed.structure = list()
         finally:
             if self.rtf_path is not None:
                 logger.debug(f"Closing {parsed_object}")

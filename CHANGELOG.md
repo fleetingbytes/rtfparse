@@ -2,6 +2,14 @@
 
 <!-- towncrier release notes start -->
 
+## 0.8.1 (2023-08-07)
+
+
+### Bugfixes
+
+- Interpret ANSI encoding as CP1252, improve error handling [#11](https://github.com/fleetingbytes/rtfparse/issues/11)
+
+
 ## 0.8.0 (2023-06-29)
 
 
