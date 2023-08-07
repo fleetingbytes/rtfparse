@@ -20,7 +20,11 @@ GROUP_START = BACKSLASH + IGNORABLE
 MAX_CW_LETTERS = 32  # As specified in RTF Spec
 INTEGER_MAGNITUDE = 32  # As specified in RTF Spec
 PLAIN_TEXT = CONTROL_WORD = (
-    BACKSLASH + MAX_CW_LETTERS + MINUS + len(str((1 << INTEGER_MAGNITUDE) // 2)) + DELIMITER
+    BACKSLASH
+    + MAX_CW_LETTERS
+    + MINUS
+    + len(str((1 << INTEGER_MAGNITUDE) // 2))
+    + DELIMITER
 )
 
 
@@ -29,7 +33,9 @@ class Entity:
         self.text = ""
 
     @classmethod
-    def probe(cls, pattern: re_patterns.Bytes_Regex, file: io.BufferedReader) -> Bytestring_Type:
+    def probe(
+        cls, pattern: re_patterns.Bytes_Regex, file: io.BufferedReader
+    ) -> Bytestring_Type:
         logger.debug(f"Probing file at position {file.tell()}")
         original_position = file.tell()
         while True:
@@ -48,7 +54,9 @@ class Entity:
             elif match := re_patterns.plain_text.match(probed):
                 result = Bytestring_Type.PLAIN_TEXT
             else:
-                logger.debug(f"This does not match anything, it's probably a newline, moving on")
+                logger.debug(
+                    f"This does not match anything, it's probably a newline, moving on"
+                )
                 original_position += 1
                 file.seek(original_position)
                 logger.debug(f"Probe moved to position {file.tell()}")
@@ -92,7 +100,9 @@ class Control_Word(Entity):
             file.seek(target_position)
             # handle \binN:
             if self.control_name == "bin":
-                self.bindata = file.read(utils.twos_complement(self.parameter, INTEGER_MAGNITUDE))
+                self.bindata = file.read(
+                    utils.twos_complement(self.parameter, INTEGER_MAGNITUDE)
+                )
         else:
             logger.warning(f"Missing Control Word")
             file.seek(self.start_position)
@@ -178,7 +188,9 @@ class Group(Entity):
                 logger.debug(f"Returned to position {file.tell()}")
         else:
             logger.warning(
-                utils.warn(f"Expected a group but found no group start. Creating unknown group")
+                utils.warn(
+                    f"Expected a group but found no group start. Creating unknown group"
+                )
             )
             file.seek(self.start_position)
         while True:
