@@ -3,7 +3,6 @@
 
 import re
 
-
 # Helper functions to construct raw regular expressions "strings" (actually byte strings)
 
 
@@ -46,7 +45,9 @@ ascii_letters = group(_letters) + rb"{1,32}"
 _digits = rb"0-9"
 _hdigits = rb"0-9a-f"
 ignorable = named_regex_group("ignorable", rb"\\\*")
-rtf_brace_open = named_regex_group("group_start", not_preceded_by(unnamed_rtf_backslash, rb"\{") + ignorable + rb"?")
+rtf_brace_open = named_regex_group(
+    "group_start", not_preceded_by(unnamed_rtf_backslash, rb"\{") + ignorable + rb"?"
+)
 rtf_brace_close = named_regex_group("group_end", not_preceded_by(unnamed_rtf_backslash, rb"\}"))
 
 
@@ -63,22 +64,28 @@ other = named_regex_group("other", group(rb"^" + _letters + _digits))
 ascii_letter_sequence = named_regex_group("control_name", ascii_letters + parameter_pattern + rb"?")
 delimiter = named_regex_group("delimiter", rb"|".join((space, newline, other, rb"$")))
 symbol = named_regex_group("symbol", other)
-control_word_pattern = named_regex_group("control_word", rtf_backslash + ascii_letter_sequence + delimiter)
+control_word_pattern = named_regex_group(
+    "control_word", rtf_backslash + ascii_letter_sequence + delimiter
+)
 pcdata_delimiter = no_capture(rb"|".join((rtf_brace_open, rtf_brace_close, control_word_pattern)))
-plain_text_pattern = named_regex_group("text", not_control_character_or_newline + rb"+") + no_capture(rb"|".join((control_character_or_newline, rb"$")))
+plain_text_pattern = named_regex_group("text", not_control_character_or_newline + rb"+") + no_capture(
+    rb"|".join((control_character_or_newline, rb"$"))
+)
 probe_pattern = rb".."
 
 
-class Bytes_Regex():
+class Bytes_Regex:
     """
     This wraps `re.pattern` objects and gives them a method `regex101` which
     prints out the pattern in such a manner that it can be copy-pasted
     to regex101.com.
     """
-    def __init__(self, Bytes: bytes, flags:re.RegexFlag=0) -> None:
+
+    def __init__(self, Bytes: bytes, flags: re.RegexFlag = 0) -> None:
         self.pattern_bytes = Bytes
         self.pattern = re.compile(Bytes, flags)
         self.match = self.pattern.match
+
     def regex101(self) -> None:
         print(self.pattern_bytes.decode("ascii"))
 
@@ -94,4 +101,6 @@ plain_text = Bytes_Regex(plain_text_pattern)
 
 
 raw_pcdata = Bytes_Regex(named_regex_group("pcdata", rb".*?") + pcdata_delimiter, flags=re.DOTALL)
-raw_sdata = Bytes_Regex(named_regex_group("sdata", group(_hdigits + rb"\r\n") + rb"+"), flags=re.DOTALL)
+raw_sdata = Bytes_Regex(
+    named_regex_group("sdata", group(_hdigits + rb"\r\n") + rb"+"), flags=re.DOTALL
+)

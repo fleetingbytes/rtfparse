@@ -1,41 +1,47 @@
 #!/usr/bin/env python
 
 
+# Typing
+import io
+import logging
+
 # Own modules
 from rtfparse import entities
 from rtfparse.renderers import Renderer
-import logging
-# Typing
-import io
-
 
 # Setup logging
 logger = logging.getLogger(__name__)
 
 
 class De_encapsulate_HTML(Renderer):
-    def __init__(self, ) -> None:
+    def __init__(
+        self,
+    ) -> None:
         super().__init__()
         self.ignore_rtf = False
-        self.render_word_func = dict((
-            ("par", self.newline),
-            ("line", self.newline),
-            ("tab", self.tab),
-            ("fromhtml", self.check_fromhtml),
-            ("htmlrtf", self.ignore_rtf_toggle),
-            ))
-        self.ignore_groups = (
-                "fonttbl",
-                "colortbl",
-                "generator",
-                "formatConverter",
+        self.render_word_func = dict(
+            (
+                ("par", self.newline),
+                ("line", self.newline),
+                ("tab", self.tab),
+                ("fromhtml", self.check_fromhtml),
+                ("htmlrtf", self.ignore_rtf_toggle),
             )
+        )
+        self.ignore_groups = (
+            "fonttbl",
+            "colortbl",
+            "generator",
+            "formatConverter",
+        )
+
     def ignore_rtf_toggle(self, cw: entities.Control_Word) -> str:
         if cw.parameter == "" or cw.parameter == 1:
             self.ignore_rtf = True
         elif cw.parameter == 0:
             self.ignore_rtf = False
         return ""
+
     def check_fromhtml(self, cw: entities.Control_Word) -> str:
         if cw.parameter == 1:
             logger.info(f"Confirming that RTF was indeed generated from HTML")
@@ -43,16 +49,19 @@ class De_encapsulate_HTML(Renderer):
             logger.warning(utils.warn(f"Encountered a part of RTF which was not generated from HTML"))
             logger.warning(utils.warn(f"This might not be the right renderer for it."))
         return ""
+
     def newline(self, cw: entities.Control_Word) -> str:
         if self.ignore_rtf:
             return ""
         else:
             return "\n"
+
     def tab(self, cw: entities.Control_Word) -> str:
         if self.ignore_rtf:
             return ""
         else:
             return "\t"
+
     def render_symbol(self, item: entities.Control_Symbol, file: io.TextIOWrapper) -> None:
         if not self.ignore_rtf:
             # Obsolete formula character used by Word 5.1 for Macintosh
@@ -72,10 +81,13 @@ class De_encapsulate_HTML(Renderer):
                 pass
             # Ignorable outside of Group
             elif item.text == "*":
-                logger.warning(utils.warn(f"Found an IGNORABLE control symbol which is not a group start!"))
+                logger.warning(
+                    utils.warn(f"Found an IGNORABLE control symbol which is not a group start!")
+                )
             # Probably any symbol converted from a hex code: \'hh
             else:
                 file.write(item.text)
+
     def render(self, parsed: entities.Group, file: io.TextIOWrapper) -> None:
         for item in parsed.structure:
             if isinstance(item, entities.Group):

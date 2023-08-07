@@ -1,0 +1,144 @@
+[build-system]
+requires = [
+    "hatchling",
+    "hatch-semver"
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "rtfparse"
+description = "Tool to parse Microsoft Rich Text Format (RTF)"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Sven Siegmund", email = "sven.siegmund@iav.de" },
+]
+classifiers = [
+    #"Development Status :: 3 - Alpha",
+    #"Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Environment :: Console",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Utilities",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+]
+keywords = [
+    "rtf",
+    "parse",
+]
+dependencies = [
+    "argcomplete",
+    "extract-msg",
+    "compressed_rtf",
+    "provide_dir",
+]
+dynamic = ["version"]
+
+[project.license]
+file = "LICENSE.txt"
+
+[project.urls]
+Documentation = "https://github.com/fleetingbytes/rtfparse#readme"
+Issues = "https://github.com/fleetingbytes/rtfparse/issues"
+Source = "https://github.com/fleetingbytes/rtfparse"
+
+[project.scripts]
+rtfparse = "rtfparse:main"
+
+[tool.hatch.version]
+path = "src/rtfparse/__about__.py"
+validate-bump = true
+scheme = "semver"
+
+[tool.hatch.envs.default]
+dependencies = [
+  "pytest-cov",
+]
+[tool.hatch.envs.default.scripts]
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/rtfparse --cov=tests {args}"
+no-cov = "cov --no-cov {args}"
+
+[tool.hatch.envs.style]
+dependencies = [
+    "black",
+    "isort",
+]
+
+[tool.hatch.envs.style.scripts]
+fmt = [
+    "isort .",
+    "black .",
+]
+
+[tool.hatch.envs.tc]
+dependencies = [
+    "towncrier",
+]
+
+[tool.hatch.envs.tc.scripts]
+draft = "towncrier build --draft"
+build = "towncrier build --yes"
+
+[tool.hatch.envs.docs]
+dependencies = [
+    "pdoc3"
+]
+
+[[tool.hatch.envs.test.matrix]]
+python = ["311"]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+omit = [
+  #"src/rtfparse/__about__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+
+[tool.black]
+    line-length = 102
+
+[tool.isort]
+    line_length = 102
+
+[tool.towncrier]
+name = "rtfparse"
+package = "rtfparse"
+package_dir = "src"
+directory = "changelog.d"
+filename = "CHANGELOG.md"
+start_string = "<!-- towncrier release notes start -->\n"
+underlines = ["", "", ""]
+template = "changelog.d/changelog_template.jinja"
+#title_format = "## [{version}](https://github.com/fleetingbytes/rtfparse/{version}) - {project_date}"
+title_format = "## {version} ({project_date})"
+issue_format = "[#{issue}](https://github.com/fleetingbytes/rtfparse/issues/{issue})"
+orphan_prefix = "+"
+
+[tool.towncrier.fragment.doc]
+name = "Documentation"
+
+[tool.towncrier.fragment.feature]
+name = "New Features"
+
+[tool.towncrier.fragment.improved]
+name = "Improvements"
+
+[tool.towncrier.fragment.fixed]
+name = "Bugfixes"
+
+[tool.towncrier.fragment.unimportant]
+name = "Development Details"

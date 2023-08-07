@@ -2,13 +2,7 @@
 
 RTF Parser. So far it can only de-encapsulate HTML content from an RTF, but it properly parses the RTF structure and allows you to write your own custom RTF renderers. The HTML de-encapsulator provided with `rtfparse` is just one such custom renderer which liberates the HTML content from its RTF encapsulation and saves it in a given html file.
 
-# Dependencies
-
-```
-argcomplete
-extract-msg
-compressed_rtf
-```
+rtfparse can also decompressed RTF from MS Outlook `.msg` files and parse that.
 
 # Installation
 
@@ -18,65 +12,60 @@ Install rtfparse from your local repository with pip:
 
 Installation creates an executable file `rtfparse` in your python scripts folder which should be in your `$PATH`. 
 
-# First Run
-
-When you run `rtfparse` for the first time it will start a configuration wizard which will guide you through the process of creating a default configuration file and specifying the location of its folders. (These folders serve as locations for saving extracted rtf or html files.)
-
-In the configuration wizard you can press `A` for care-free automatic configuration, which would look something like this:
-
-```
-$ rtfparse
-Config file missing, creating new default config file
-
- ____ ____ __ _ ____ _ ____ _  _ ____ ____ ___ _ ____ __ _
- |___ [__] | \| |--- | |__, |__| |--< |--|  |  | [__] | \|
- _  _ _ ___  ____ ____ ___
- |/\| |  /__ |--| |--< |__>
-
-
-◊ email_rtf (C:\Users\nagidal\rtfparse\email_rtf) does not exist!
-
-(A) Automatically configure this and all remaining rtfparse settings
-(C) Create this path automatically
-(M) Manually input correct path to use or to create
-(Q) Quit and edit `email_rtf` in rtfparse_configuration.ini
-
-Created directory C:\Users\nagidal\rtfparse
-Created directory C:\Users\nagidal\rtfparse\email_rtf
-Created directory C:\Users\nagidal\rtfparse\html
-```
-
-`rtfparse` also creates the folder `.rtfparse` (beginning with a dot) in your home directory where it saves its default configuration and its log files.
-
 # Usage From Command Line
 
-Use the `rtfparse` executable from the command line. For example if you want to de-encapsulate the HTML from an RTF file, do it like this:
+Use the `rtfparse` executable from the command line. Read `rtfparse --help`.
 
-    rtfparse -f "path/to/rtf_file.rtf" -d
-
-Or you can de-encapsulate the HTML from an MS Outlook message, thanks to [extract_msg](https://github.com/TeamMsgExtractor/msg-extractor) and [compressed_rtf](https://github.com/delimitry/compressed_rtf):
-
-    rtfparse -m "path/to/email.msg" -d
-
-The resulting html file will be saved to the `html` folder you set in the `rtfparse_configuration.ini`. Command reference is in `rtfparse --help`.
-
-# Usage in python module
+rtfparse writes logs into `~/rtfparse/` into these files:
 
 ```
-import pathlib
+rtfparse.debug.log
+rtfparse.info.log
+rtfparse.errors.log
+```
+
+## Example: De-encapsulate HTML from an uncompressed RTF file
+
+    rtfparse --rtf-file "path/to/rtf_file.rtf" --de-encapsulate-html --output-file "path/to/extracted.html"
+
+## Example: De-encapsulate HTML from MS Outlook email file
+
+Thanks to [extract_msg](https://github.com/TeamMsgExtractor/msg-extractor) and [compressed_rtf](https://github.com/delimitry/compressed_rtf), rtfparse internally uses them:
+
+    rtfparse --msg-file "path/to/email.msg" --de-encapsulate-html --output-file "path/to/extracted.html"
+
+## Example: Only decompress the RTF from MS Outlook email file
+
+    rtfparse --msg-file "path/to/email.msg" --output-file "path/to/extracted.rtf"
+
+## Example: De-encapsulate HTML from MS Outlook email file and save (and later embed) the attachments
+
+When extracting the RTF from the `.msg` file, you can save the attachments (which includes images embedded in the email text) in a directory:
+
+    rtfparse --msg-file "path/to/email.msg" --output-file "path/to/extracted.rtf" --attachments-dir "path/to/dir"
+
+In `rtfparse` version 1.x you will be able to embed these images in the de-encapsulated HTML. This functionality will be provided by the package [embedimg](https://github.com/fleetingbytes/embedimg).
+
+    rtfparse --msg-file "path/to/email.msg" --output-file "path/to/extracted.rtf" --attachments-dir "path/to/dir" --embed-img
+
+In the current version the option `--embed-img` does nothing.
+
+# Programatic usage in python module
+
+```
+from pathlib import Path
 from rtfparse.parser import Rtf_Parser
-from rtfparse.renderers import de_encapsulate_html
+from rtfparse.renderers.de_encapsulate_html import De_encapsulate_HTML
 
-
-source_path = pathlib.Path(r"path/to/your/rtf/document.rtf")
-target_path = pathlib.Path(r"path/to/your/html/de_encapsulated.html")
+source_path = Path(r"path/to/your/rtf/document.rtf")
+target_path = Path(r"path/to/your/html/de_encapsulated.html")
 
 
 parser = Rtf_Parser(rtf_path=source_path)
 parsed = parser.parse_file()
 
+renderer = De_encapsulate_HTML()
 
-renderer = de_encapsulate_html.De_encapsulate_HTML()
 with open(target_path, mode="w", encoding="utf-8") as html_file:
     renderer.render(parsed, html_file)
 ```
