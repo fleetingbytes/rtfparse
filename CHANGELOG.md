@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## 0.8.2 (2024-03-05)
+
+
+### Documentation
+
+- Update `README.md`: Create parent directories of `target_path` if they don't already exist. [#14](https://github.com/fleetingbytes/rtfparse/issues/14)
+
 ## 0.8.1 (2023-08-07)
 
 
