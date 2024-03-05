@@ -59,6 +59,8 @@ from rtfparse.renderers.de_encapsulate_html import De_encapsulate_HTML
 
 source_path = Path(r"path/to/your/rtf/document.rtf")
 target_path = Path(r"path/to/your/html/de_encapsulated.html")
+# Create parent directory of `target_path` if it does not already exist:
+target_path.parent.mkdir(parents=True, exist_ok=True)
 
 
 parser = Rtf_Parser(rtf_path=source_path)
