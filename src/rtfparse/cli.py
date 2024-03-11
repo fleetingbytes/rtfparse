@@ -15,7 +15,7 @@ from provide_dir import provide_dir
 from rtfparse import logging_conf
 from rtfparse.__about__ import __version__
 from rtfparse.parser import Rtf_Parser
-from rtfparse.renderers import de_encapsulate_html
+from rtfparse.renderers.html_decapsulator import HTML_Decapsulator
 
 
 def setup_logger(directory: Path) -> logging.Logger:
@@ -65,7 +65,7 @@ def argument_parser() -> ArgumentParser:
         help="Parse RTF from MS Outlook's .msg file",
     )
     parser.add_argument(
-        "-d", "--de-encapsulate-html", action="store_true", help="De-encapsulate HTML from RTF"
+        "-d", "--decapsulate-html", action="store_true", help="Decapsulate HTML from RTF"
     )
     parser.add_argument(
         "-i", "--embed-img", action="store_true", help="Embed images from email to HTML"
@@ -83,8 +83,8 @@ def argument_parser() -> ArgumentParser:
     return parser
 
 
-def de_encapsulate(rp: Rtf_Parser, target_file: Path) -> None:
-    renderer = de_encapsulate_html.De_encapsulate_HTML()
+def decapsulate(rp: Rtf_Parser, target_file: Path) -> None:
+    renderer = HTML_Decapsulator()
     with open(target_file, mode="w", encoding="utf-8") as htmlfile:
         logger.info(f"Rendering the encapsulated HTML")
         renderer.render(rp.parsed, htmlfile)
@@ -111,8 +111,8 @@ def run(cli_args: Namespace) -> None:
         with io.BytesIO(decompressed_rtf) as rtf_file:
             rp = Rtf_Parser(rtf_file=rtf_file)
             rp.parse_file()
-    if cli_args.de_encapsulate_html and cli_args.output_file:
-        de_encapsulate(rp, cli_args.output_file.with_suffix(".html"))
+    if cli_args.decapsulate_html and cli_args.output_file:
+        decapsulate(rp, cli_args.output_file.with_suffix(".html"))
 
 
 def main() -> None:
