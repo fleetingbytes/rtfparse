@@ -6,6 +6,7 @@ A minimal example for a programatic use of the rtf parser and renderer
 """
 
 from pathlib import Path
+
 from rtfparse.parser import Rtf_Parser
 from rtfparse.renderers.html_decapsulator import HTML_Decapsulator
 
