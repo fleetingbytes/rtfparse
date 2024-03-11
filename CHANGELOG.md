@@ -2,6 +2,18 @@
 
 <!-- towncrier release notes start -->
 
+## 0.9.0 (2024-03-11)
+
+
+### Bugfixes
+
+- Recognize control words with where the parameter's digital sequence is delimited by any character other than an ASCII digit [#18](https://github.com/fleetingbytes/rtfparse/issues/18)
+
+
+### Development Details
+
+- Renamed a few things, improved readme [#17](https://github.com/fleetingbytes/rtfparse/issues/17)
+
 ## 0.8.2 (2024-03-05)
 
 
