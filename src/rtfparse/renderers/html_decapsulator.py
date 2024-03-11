@@ -13,7 +13,7 @@ from rtfparse.renderers import Renderer
 logger = logging.getLogger(__name__)
 
 
-class De_encapsulate_HTML(Renderer):
+class HTML_Decapsulator(Renderer):
     def __init__(
         self,
     ) -> None:
@@ -44,7 +44,7 @@ class De_encapsulate_HTML(Renderer):
 
     def check_fromhtml(self, cw: entities.Control_Word) -> str:
         if cw.parameter == 1:
-            logger.info(f"Confirming that RTF was indeed generated from HTML")
+            logger.info(f"This RTF was indeed generated from HTML")
         else:
             logger.warning(utils.warn(f"Encountered a part of RTF which was not generated from HTML"))
             logger.warning(utils.warn(f"This might not be the right renderer for it."))
