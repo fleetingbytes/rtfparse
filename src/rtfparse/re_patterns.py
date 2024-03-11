@@ -7,7 +7,10 @@ import re
 
 
 def group(content: bytes) -> bytes:
-    return rb"[" + content + rb"]"
+    if content:
+        return rb"[" + content + rb"]"
+    else:
+        return b""
 
 
 def named_regex_group(name: str, content: bytes) -> bytes:
@@ -54,15 +57,15 @@ rtf_brace_close = named_regex_group("group_end", not_preceded_by(unnamed_rtf_bac
 minus = named_regex_group("minus", rb"-?")
 digit = named_regex_group("digit", minus + group(_digits) + rb"{1,10}")
 hdigit = named_regex_group("hdigit", group(_hdigits))
-# int16 = minus + digit + rb"{1,5}"
 parameter_pattern = named_regex_group("parameter", digit)
 space = named_regex_group("space", rb" ")
 newline = named_regex_group("newline", _newline)
 other = named_regex_group("other", group(rb"^" + _letters + _digits))
+nothing = named_regex_group("nothing", group(rb""))
 
 
 ascii_letter_sequence = named_regex_group("control_name", ascii_letters + parameter_pattern + rb"?")
-delimiter = named_regex_group("delimiter", rb"|".join((space, newline, other, rb"$")))
+delimiter = named_regex_group("delimiter", rb"|".join((space, newline, other, nothing, rb"$")))
 symbol = named_regex_group("symbol", other)
 control_word_pattern = named_regex_group(
     "control_word", rtf_backslash + ascii_letter_sequence + delimiter

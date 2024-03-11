@@ -27,9 +27,7 @@ class Rtf_Parser:
         self.rtf_file = rtf_file
         if not (self.rtf_path or self.rtf_file):
             raise ValueError("Need `rtf_path` or `rtf_file` argument")
-        self.ENCODING_PROBE = (
-            48  # look for encoding information in the first 48 bytes of the file
-        )
+        self.ENCODING_PROBE = 48  # look for encoding information in the first 48 bytes of the file
 
     def read_encoding(self, file: Union[io.BufferedReader, io.BytesIO]) -> str:
         probed = file.read(self.ENCODING_PROBE)
