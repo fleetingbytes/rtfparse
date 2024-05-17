@@ -1,7 +1,7 @@
 # rtfparse
 
 Parses Microsofts Rich Text Format (RTF) documents. It creates an in-memory object which represents the tree structure of the RTF document. This object can in turn be rendered by using one of the renderers.
-So far, rtfparse provides only one renderer (`Decapsulate_HTML`) which liberates the HTML code encapsulated in RTF. This will come handy, for examle, if you ever need to extract the HTML from a HTML-formatted email message saved by Microsoft Outlook.
+So far, rtfparse provides only one renderer (`HTML_Decapsulator`) which liberates the HTML code encapsulated in RTF. This will come handy, for examle, if you ever need to extract the HTML from a HTML-formatted email message saved by Microsoft Outlook.
 
 MS Outlook also tends to use RTF compression, so the CLI of rtfparse can optionally do that, too.
 
