@@ -56,7 +56,9 @@ In the current version the option `--embed-img` does nothing.
 
 # Programatic usage in a Python module
 
-```
+## Decapsulate HTML from an uncompressed RTF file
+
+```py
 from pathlib import Path
 from rtfparse.parser import Rtf_Parser
 from rtfparse.renderers.html_decapsulator import HTML_Decapsulator
@@ -73,6 +75,37 @@ renderer = HTML_Decapsulator()
 
 with open(target_path, mode="w", encoding="utf-8") as html_file:
     renderer.render(parsed, html_file)
+```
+
+## Decapsulate HTML from an MS Outlook msg file
+
+```py
+from pathlib import Path
+from extract_msg import openMsg
+from compressed_rtf import decompress
+from io import BytesIO
+from rtfparse.parser import Rtf_Parser
+from rtfparse.renderers.html_decapsulator import HTML_Decapsulator
+
+
+source_file = Path("path/to/your/source.msg")
+target_file = Path(r"path/to/your/target.html")
+# Create parent directory of `target_path` if it does not already exist:
+target_file.parent.mkdir(parents=True, exist_ok=True)
+
+# Get a decompressed RTF bytes buffer from the MS Outlook message
+msg = openMsg(source_file)
+decompressed_rtf = decompress(msg.compressedRtf)
+rtf_buffer = BytesIO(decompressed_rtf)
+
+# Parse the rtf buffer
+parser = Rtf_Parser(rtf_file=rtf_buffer)
+parsed = parser.parse_file()
+
+# Decapsulate the HTML from the parsed RTF
+decapsulator = HTML_Decapsulator()
+with open(target_file, mode="w", encoding="utf-8") as html_file:
+    decapsulator.render(parsed, html_file)
 ```
 
 # RTF Specification Links
