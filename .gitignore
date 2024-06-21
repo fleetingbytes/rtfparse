@@ -1,3 +1,8 @@
+# Test files
+target.html
+extract.py
+test.msg
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
