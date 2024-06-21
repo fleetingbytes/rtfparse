@@ -2,6 +2,20 @@
 
 <!-- towncrier release notes start -->
 
+## 0.9.1 (2024-06-21)
+
+
+### Documentation
+
+- Fix old naming in readme [#22](https://github.com/fleetingbytes/rtfparse/issues/22)
+- Add example how to programmatically extract HTML from MS Outlook message [#25](https://github.com/fleetingbytes/rtfparse/issues/25)
+
+
+### Bugfixes
+
+- Don't setup log if not using the CLI [#24](https://github.com/fleetingbytes/rtfparse/issues/24)
+- Fix possible bug in error handling [#26](https://github.com/fleetingbytes/rtfparse/issues/26)
+
 ## 0.9.0 (2024-03-11)
 
 

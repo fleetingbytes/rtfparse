@@ -1,4 +1,4 @@
 #!/usr/bin/env python
 
 
-__version__ = "0.9.1-rc.1"
+__version__ = "0.9.1"
