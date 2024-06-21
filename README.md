@@ -111,5 +111,5 @@ with open(target_file, mode="w", encoding="utf-8") as html_file:
 # RTF Specification Links
 
 * [RTF Informative References](https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxrtfcp/85c0b884-a960-4d1a-874e-53eeee527ca6)
-* [RTF Spec 1.9.1](https://go.microsoft.com/fwlink/?LinkId=120924)
+* [RTF Specification 1.9.1](https://go.microsoft.com/fwlink/?LinkId=120924)
 * [RTF Extensions, MS-OXRTFEX](https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxrtfex/411d0d58-49f7-496c-b8c3-5859b045f6cf)
