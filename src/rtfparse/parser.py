@@ -93,7 +93,7 @@ class Rtf_Parser:
             self.parsed = entities.Group(encoding, file)
         except Exception as err:
             logger.exception(err)
-            self.parsed == Namespace()
+            self.parsed = Namespace()
             self.parsed.structure = list()
         finally:
             if self.rtf_path is not None:
