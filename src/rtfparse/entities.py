@@ -81,7 +81,8 @@ class Control_Word(Entity):
             if parameter is not None:
                 self.parameter = int(parameter.decode(self.encoding))
                 logger.debug(f"{self.parameter = }")
-                self.control_name = self.control_name.removesuffix(str(self.parameter))
+                if self.control_name.endswith(str(self.parameter)):
+                    self.control_name = self.control_name[: -len(str(self.parameter))]
                 logger.debug(f"Final {self.control_name = }")
             target_position = self.start_position + match.span()[1]
             if match.group("other"):
