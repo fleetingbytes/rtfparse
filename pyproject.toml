@@ -50,7 +50,7 @@ Issues = "https://github.com/fleetingbytes/rtfparse/issues"
 Source = "https://github.com/fleetingbytes/rtfparse"
 
 [project.scripts]
-rtfparse = "rtfparse:main"
+rtfparse = "rtfparse.cli:main"
 
 [tool.hatch.version]
 path = "src/rtfparse/__about__.py"
