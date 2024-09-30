@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## 0.9.2 (2024-09-30)
+
+
+### Bugfixes
+
+- Fixed `rtfparse --help`, correct entrypoint in `pyproject.toml` [#34](https://github.com/fleetingbytes/rtfparse/issues/34)
+
 ## 0.9.1 (2024-06-21)
 
 
