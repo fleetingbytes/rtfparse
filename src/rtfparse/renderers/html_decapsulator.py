@@ -33,6 +33,9 @@ class HTML_Decapsulator(Renderer):
             "colortbl",
             "generator",
             "formatConverter",
+            "pntext",
+            "pntxta",
+            "pntxtb",
         )
 
     def ignore_rtf_toggle(self, cw: entities.Control_Word) -> str:
