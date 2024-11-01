@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## 0.9.3 (2024-11-01)
+
+
+### Bugfixes
+
+- Fixed double numbering of ordered and unordered lists [#38](https://github.com/fleetingbytes/rtfparse/issues/38)
+
 ## 0.9.2 (2024-09-30)
 
 
