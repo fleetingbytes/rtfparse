@@ -4,25 +4,20 @@
 import io
 import logging
 import pathlib
-import re
 from argparse import Namespace
 
 # Typing
 from typing import Optional, Union
 
 # Own modules
-from rtfparse import entities, re_patterns, utils
+from rtfparse import entities, utils
 
 # Setup logging
 logger = logging.getLogger(__name__)
 
 
 class Rtf_Parser:
-    def __init__(
-        self,
-        rtf_path: Optional[pathlib.Path] = None,
-        rtf_file: Optional[Union[io.BufferedReader, io.BytesIO]] = None,
-    ) -> None:
+    def __init__(self, rtf_path: Optional[pathlib.Path] = None, rtf_file: Optional[Union[io.BufferedReader, io.BytesIO]] = None) -> None:
         self.rtf_path = rtf_path
         self.rtf_file = rtf_file
         if not (self.rtf_path or self.rtf_file):
@@ -32,23 +27,11 @@ class Rtf_Parser:
     def read_encoding(self, file: Union[io.BufferedReader, io.BytesIO]) -> str:
         probed = file.read(self.ENCODING_PROBE)
         group = entities.Group("cp1252", io.BytesIO(probed))
-        recognized_encodings = (
-            "ansi",
-            "ansicpg",
-            "mac",
-            "pc",
-            "pca",
-        )
+        recognized_encodings = ("ansi", "ansicpg", "mac", "pc", "pca")
         # Gather all control words, which could define an encoding:
-        names = tuple(
-            filter(
-                lambda item: isinstance(item, entities.Control_Word)
-                and item.control_name in recognized_encodings,
-                group.structure,
-            )
-        )
+        names = tuple(filter(lambda item: isinstance(item, entities.Control_Word) and item.control_name in recognized_encodings, group.structure))
         # Check if the ANSI code page is set as a parameter of any of the control words:
-        cp = None
+        encoding = None
         for item in names:
             # if any item is a Control_Word which has a parameter, we assume that this is the parameter of \ansicpg, and that corresponds to the codepage we are looking for
             if item.parameter:
@@ -57,17 +40,13 @@ class Rtf_Parser:
                 param = None
         if param:
             if param == 65001:
-                logger.warning(
-                    "Found encoding '65001', but often this is actually 'cp1252', so I'm taking that"
-                )
+                logger.warning("Found encoding '65001', but often this is actually 'cp1252', so I'm taking that")
                 encoding = "cp1252"
             else:
                 encoding = f"cp{param}"
         else:
             if names[0].control_name == "ansi":
-                logger.warning(
-                    "Found encoding 'ansi', but often this is actually 'cp1252', so I'm taking that"
-                )
+                logger.warning("Found encoding 'ansi', but often this is actually 'cp1252', so I'm taking that")
                 encoding = "cp1252"
             elif names[0].control_name == "mac":
                 encoding = "mac_roman"

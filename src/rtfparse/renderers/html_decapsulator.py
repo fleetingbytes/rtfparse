@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
 
-# Typing
 import io
 import logging
 
-# Own modules
-from rtfparse import entities
+from rtfparse import entities, utils
 from rtfparse.renderers import Renderer
 
 # Setup logging
@@ -14,29 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 class HTML_Decapsulator(Renderer):
-    def __init__(
-        self,
-    ) -> None:
+    def __init__(self) -> None:
         super().__init__()
         self.ignore_rtf = False
         self.render_word_func = dict(
-            (
-                ("par", self.newline),
-                ("line", self.newline),
-                ("tab", self.tab),
-                ("fromhtml", self.check_fromhtml),
-                ("htmlrtf", self.ignore_rtf_toggle),
-            )
+            (("par", self.newline), ("line", self.newline), ("tab", self.tab), ("fromhtml", self.check_fromhtml), ("htmlrtf", self.ignore_rtf_toggle))
         )
-        self.ignore_groups = (
-            "fonttbl",
-            "colortbl",
-            "generator",
-            "formatConverter",
-            "pntext",
-            "pntxta",
-            "pntxtb",
-        )
+        self.ignore_groups = ("fonttbl", "colortbl", "generator", "formatConverter", "pntext", "pntxta", "pntxtb")
 
     def ignore_rtf_toggle(self, cw: entities.Control_Word) -> str:
         if cw.parameter == "" or cw.parameter == 1:
@@ -47,10 +29,10 @@ class HTML_Decapsulator(Renderer):
 
     def check_fromhtml(self, cw: entities.Control_Word) -> str:
         if cw.parameter == 1:
-            logger.info(f"This RTF was indeed generated from HTML")
+            logger.info("This RTF was indeed generated from HTML")
         else:
-            logger.warning(utils.warn(f"Encountered a part of RTF which was not generated from HTML"))
-            logger.warning(utils.warn(f"This might not be the right renderer for it."))
+            logger.warning(utils.warn("Encountered a part of RTF which was not generated from HTML"))
+            logger.warning(utils.warn("This might not be the right renderer for it."))
         return ""
 
     def newline(self, cw: entities.Control_Word) -> str:
@@ -84,9 +66,7 @@ class HTML_Decapsulator(Renderer):
                 pass
             # Ignorable outside of Group
             elif item.text == "*":
-                logger.warning(
-                    utils.warn(f"Found an IGNORABLE control symbol which is not a group start!")
-                )
+                logger.warning(utils.warn("Found an IGNORABLE control symbol which is not a group start!"))
             # Probably any symbol converted from a hex code: \'hh
             else:
                 file.write(item.text)

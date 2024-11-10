@@ -24,14 +24,10 @@ def setup_logger(directory: Path) -> logging.Logger:
     """
     try:
         provide_dir(directory)
-        logger_config = logging_conf.create_dict_config(
-            directory, "rtfparse.debug.log", "rtfparse.info.log", "rtfparse.errors.log"
-        )
+        logger_config = logging_conf.create_dict_config(directory, "rtfparse.debug.log", "rtfparse.info.log", "rtfparse.errors.log")
     except FileExistsError:
-        logger.error(
-            f"Failed to create the directory `{str(directory)}` because it already exists as a file."
-        )
-        logger.error(f"Please create the directory `{str(directory)}`")
+        print(f"Failed to create the directory `{str(directory)}` because it already exists as a file.")
+        print(f"Please create the directory `{str(directory)}`")
     finally:
         logging.config.dictConfig(logger_config)
         logger = logging.getLogger(__name__)
@@ -46,49 +42,22 @@ def argument_parser() -> ArgumentParser:
     Creates an argument parser for command line arguments
     """
     parser = ArgumentParser(description="RTF parser", prog="rtfparse")
-    parser.add_argument(
-        "-v",
-        "--version",
-        action="version",
-        version=" ".join(("%(prog)s", __version__)),
-        help="print out rtfparse version and exit",
-    )
-    parser.add_argument(
-        "-r", "--rtf-file", action="store", metavar="PATH", type=Path, help="path to the rtf file"
-    )
-    parser.add_argument(
-        "-m",
-        "--msg-file",
-        action="store",
-        metavar="PATH",
-        type=Path,
-        help="Parse RTF from MS Outlook's .msg file",
-    )
-    parser.add_argument(
-        "-d", "--decapsulate-html", action="store_true", help="Decapsulate HTML from RTF"
-    )
-    parser.add_argument(
-        "-i", "--embed-img", action="store_true", help="Embed images from email to HTML"
-    )
-    parser.add_argument(
-        "-o", "--output-file", metavar="PATH", type=Path, help="path to the desired output file"
-    )
-    parser.add_argument(
-        "-a",
-        "--attachments-dir",
-        metavar="PATH",
-        type=Path,
-        help="path to directory where to save email attachments",
-    )
+    parser.add_argument("-v", "--version", action="version", version=" ".join(("%(prog)s", __version__)), help="print out rtfparse version and exit")
+    parser.add_argument("-r", "--rtf-file", action="store", metavar="PATH", type=Path, help="path to the rtf file")
+    parser.add_argument("-m", "--msg-file", action="store", metavar="PATH", type=Path, help="Parse RTF from MS Outlook's .msg file")
+    parser.add_argument("-d", "--decapsulate-html", action="store_true", help="Decapsulate HTML from RTF")
+    parser.add_argument("-i", "--embed-img", action="store_true", help="Embed images from email to HTML")
+    parser.add_argument("-o", "--output-file", metavar="PATH", type=Path, help="path to the desired output file")
+    parser.add_argument("-a", "--attachments-dir", metavar="PATH", type=Path, help="path to directory where to save email attachments")
     return parser
 
 
 def decapsulate(rp: Rtf_Parser, target_file: Path) -> None:
     renderer = HTML_Decapsulator()
     with open(target_file, mode="w", encoding="utf-8") as htmlfile:
-        logger.info(f"Rendering the encapsulated HTML")
+        logger.info("Rendering the encapsulated HTML")
         renderer.render(rp.parsed, htmlfile)
-        logger.info(f"Encapsulated HTML rendered")
+        logger.info("Encapsulated HTML rendered")
 
 
 def run(cli_args: Namespace) -> None:
@@ -101,9 +70,7 @@ def run(cli_args: Namespace) -> None:
         if cli_args.attachments_dir:
             provide_dir(cli_args.attachments_dir)
             for attachment in msg.attachments:
-                with open(
-                    cli_args.attachments_dir / f"{attachment.longFilename}", mode="wb"
-                ) as att_file:
+                with open(cli_args.attachments_dir / f"{attachment.longFilename}", mode="wb") as att_file:
                     att_file.write(attachment.data)
         decompressed_rtf = cr.decompress(msg.compressedRtf)
         with open(cli_args.msg_file.with_suffix(".rtf"), mode="wb") as email_rtf:
@@ -119,7 +86,7 @@ def main() -> None:
     """
     Entry point for any component start from the commmand line
     """
-    logger.debug(f"rtfparse started")
+    logger.debug("rtfparse started")
     parser = argument_parser()
     argcomplete.autocomplete(parser)
     cli_args = parser.parse_args()
@@ -128,4 +95,4 @@ def main() -> None:
         run(cli_args)
     except Exception as err:
         logger.exception(f"Uncaught exception {repr(err)} occurred.")
-    logger.debug(f"rtfparse ended")
+    logger.debug("rtfparse ended")

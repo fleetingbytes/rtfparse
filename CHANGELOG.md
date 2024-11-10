@@ -2,6 +2,18 @@
 
 <!-- towncrier release notes start -->
 
+## 0.9.4 (2024-11-10)
+
+
+### Bugfixes
+
+- add missing import statement in `html_decapsulator.py` [#42](https://github.com/fleetingbytes/rtfparse/issues/42)
+
+
+### Development Details
+
+- replace `black` and `isort` with `ruff` [#44](https://github.com/fleetingbytes/rtfparse/issues/44)
+
 ## 0.9.3 (2024-11-01)
 
 
