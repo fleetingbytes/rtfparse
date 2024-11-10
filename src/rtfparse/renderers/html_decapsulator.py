@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
 
-# Typing
 import io
 import logging
 
-# Own modules
-from rtfparse import entities
+from rtfparse import entities, utils
 from rtfparse.renderers import Renderer
 
 # Setup logging
