@@ -48,9 +48,7 @@ ascii_letters = group(_letters) + rb"{1,32}"
 _digits = rb"0-9"
 _hdigits = rb"0-9a-f"
 ignorable = named_regex_group("ignorable", rb"\\\*")
-rtf_brace_open = named_regex_group(
-    "group_start", not_preceded_by(unnamed_rtf_backslash, rb"\{") + ignorable + rb"?"
-)
+rtf_brace_open = named_regex_group("group_start", not_preceded_by(unnamed_rtf_backslash, rb"\{") + ignorable + rb"?")
 rtf_brace_close = named_regex_group("group_end", not_preceded_by(unnamed_rtf_backslash, rb"\}"))
 
 
@@ -67,9 +65,7 @@ nothing = named_regex_group("nothing", group(rb""))
 ascii_letter_sequence = named_regex_group("control_name", ascii_letters + parameter_pattern + rb"?")
 delimiter = named_regex_group("delimiter", rb"|".join((space, newline, other, nothing, rb"$")))
 symbol = named_regex_group("symbol", other)
-control_word_pattern = named_regex_group(
-    "control_word", rtf_backslash + ascii_letter_sequence + delimiter
-)
+control_word_pattern = named_regex_group("control_word", rtf_backslash + ascii_letter_sequence + delimiter)
 pcdata_delimiter = no_capture(rb"|".join((rtf_brace_open, rtf_brace_close, control_word_pattern)))
 plain_text_pattern = named_regex_group("text", not_control_character_or_newline + rb"+") + no_capture(
     rb"|".join((control_character_or_newline, rb"$"))
@@ -104,6 +100,4 @@ plain_text = Bytes_Regex(plain_text_pattern)
 
 
 raw_pcdata = Bytes_Regex(named_regex_group("pcdata", rb".*?") + pcdata_delimiter, flags=re.DOTALL)
-raw_sdata = Bytes_Regex(
-    named_regex_group("sdata", group(_hdigits + rb"\r\n") + rb"+"), flags=re.DOTALL
-)
+raw_sdata = Bytes_Regex(named_regex_group("sdata", group(_hdigits + rb"\r\n") + rb"+"), flags=re.DOTALL)

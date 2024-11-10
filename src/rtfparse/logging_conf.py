@@ -23,7 +23,6 @@ If you want an additional custom logger, get it like this:
 The custom logger is configured to propagate its log records to the root logger
 """
 
-
 import pathlib
 
 
@@ -46,17 +45,9 @@ def create_dict_config(directory: pathlib.Path, all_log: str, info_log: str, err
         "datefmt": "%a %H:%M:%S",
     }
 
-    formatters_dict = {
-        "file_formatter": file_formatter_conf,
-        "console_formatter": console_formatter_conf,
-    }
+    formatters_dict = {"file_formatter": file_formatter_conf, "console_formatter": console_formatter_conf}
 
-    root_console_handler_conf = {
-        "class": "logging.StreamHandler",
-        "level": "INFO",
-        "formatter": "console_formatter",
-        "stream": "ext://sys.stdout",
-    }
+    root_console_handler_conf = {"class": "logging.StreamHandler", "level": "INFO", "formatter": "console_formatter", "stream": "ext://sys.stdout"}
 
     root_file_handler_conf = {
         "class": "logging.FileHandler",
@@ -92,25 +83,14 @@ def create_dict_config(directory: pathlib.Path, all_log: str, info_log: str, err
         "custom_info_file_handler": custom_info_file_handler_conf,
     }
 
-    custom_logger_conf = {
-        "propagate": True,
-        "handlers": ["custom_error_file_handler", "custom_info_file_handler"],
-        "level": "DEBUG",
-    }
+    custom_logger_conf = {"propagate": True, "handlers": ["custom_error_file_handler", "custom_info_file_handler"], "level": "DEBUG"}
 
     root_logger_conf = {
-        "handlers": [
-            "root_file_handler",
-            "root_console_handler",
-            "custom_error_file_handler",
-            "custom_info_file_handler",
-        ],
+        "handlers": ["root_file_handler", "root_console_handler", "custom_error_file_handler", "custom_info_file_handler"],
         "level": "DEBUG",
     }
 
-    loggers_dict = {
-        "custom_logger": custom_logger_conf,
-    }
+    loggers_dict = {"custom_logger": custom_logger_conf}
 
     dict_config = {
         "version": 1,

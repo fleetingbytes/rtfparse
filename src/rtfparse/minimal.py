@@ -10,12 +10,8 @@ from pathlib import Path
 from rtfparse.parser import Rtf_Parser
 from rtfparse.renderers.html_decapsulator import HTML_Decapsulator
 
-source_path = Path(
-    r"D:\trace\Pre-Integration test report of carapp_orureleasenotes_1_22_104 Webapps on ID_S 5_0.rtf"
-)
-target_path = Path(
-    r"D:\trace\Pre-Integration test report of carapp_orureleasenotes_1_22_104 Webapps on ID_S 5_0.html"
-)
+source_path = Path(r"D:\trace\Pre-Integration test report of carapp_orureleasenotes_1_22_104 Webapps on ID_S 5_0.rtf")
+target_path = Path(r"D:\trace\Pre-Integration test report of carapp_orureleasenotes_1_22_104 Webapps on ID_S 5_0.html")
 # Create parent directory of `target_path` if it does not already exist:
 target_path.parent.mkdir(parents=True, exist_ok=True)
 

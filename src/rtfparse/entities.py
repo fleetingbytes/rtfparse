@@ -3,7 +3,6 @@
 
 import io
 import logging
-import re
 
 # Own modules
 from rtfparse import re_patterns, utils
@@ -19,9 +18,7 @@ SYMBOL = IGNORABLE = BACKSLASH + CHARACTER
 GROUP_START = BACKSLASH + IGNORABLE
 MAX_CW_LETTERS = 32  # As specified in RTF Spec
 INTEGER_MAGNITUDE = 32  # As specified in RTF Spec
-PLAIN_TEXT = CONTROL_WORD = (
-    BACKSLASH + MAX_CW_LETTERS + MINUS + len(str((1 << INTEGER_MAGNITUDE) // 2)) + DELIMITER
-)
+PLAIN_TEXT = CONTROL_WORD = BACKSLASH + MAX_CW_LETTERS + MINUS + len(str((1 << INTEGER_MAGNITUDE) // 2)) + DELIMITER
 
 
 class Entity:
@@ -37,23 +34,23 @@ class Entity:
             logger.debug(f"{probed = }")
             file.seek(original_position)
             logger.debug(f"Probe returned to position {file.tell()}")
-            if match := re_patterns.group_start.match(probed):
+            if re_patterns.group_start.match(probed):
                 result = Bytestring_Type.GROUP_START
-            elif match := re_patterns.group_end.match(probed):
+            elif re_patterns.group_end.match(probed):
                 result = Bytestring_Type.GROUP_END
-            elif match := re_patterns.control_word.match(probed):
+            elif re_patterns.control_word.match(probed):
                 result = Bytestring_Type.CONTROL_WORD
-            elif match := re_patterns.control_symbol.match(probed):
+            elif re_patterns.control_symbol.match(probed):
                 result = Bytestring_Type.CONTROL_SYMBOL
-            elif match := re_patterns.plain_text.match(probed):
+            elif re_patterns.plain_text.match(probed):
                 result = Bytestring_Type.PLAIN_TEXT
             else:
-                logger.debug(f"This does not match anything, it's probably a newline, moving on")
+                logger.debug("This does not match anything, it's probably a newline, moving on")
                 original_position += 1
                 file.seek(original_position)
                 logger.debug(f"Probe moved to position {file.tell()}")
                 if not probed:
-                    logger.debug(f"Reached unexpected end of file.")
+                    logger.debug("Reached unexpected end of file.")
                     result = Bytestring_Type.GROUP_END
                     break
                 continue
@@ -85,16 +82,14 @@ class Control_Word(Entity):
                 logger.debug(f"Final {self.control_name = }")
             target_position = self.start_position + match.span()[1]
             if match.group("other"):
-                logger.debug(
-                    f"Delimiter is {match.group('other').decode(self.encoding)}, len: {len(match.group('delimiter'))}"
-                )
+                logger.debug(f"Delimiter is {match.group('other').decode(self.encoding)}, len: {len(match.group('delimiter'))}")
                 target_position -= len(match.group("delimiter"))
             file.seek(target_position)
             # handle \binN:
             if self.control_name == "bin":
                 self.bindata = file.read(utils.twos_complement(self.parameter, INTEGER_MAGNITUDE))
         else:
-            logger.warning(f"Missing Control Word")
+            logger.warning("Missing Control Word")
             file.seek(self.start_position)
 
     def __repr__(self) -> str:
@@ -112,9 +107,7 @@ class Control_Symbol(Entity):
         if self.text == "'":
             self.char = file.read(SYMBOL).decode(self.encoding)
             self.text = bytes((int(self.char, base=16),)).decode(self.encoding)
-            logger.debug(
-                f"Encountered escaped ANSI character, read two more bytes: {self.char}, character: {self.text}"
-            )
+            logger.debug(f"Encountered escaped ANSI character, read two more bytes: {self.char}, character: {self.text}")
             if self.text in "\\{}":
                 file.seek(file.tell() - SYMBOL)
 
@@ -127,16 +120,14 @@ class Plain_Text(Entity):
         super().__init__()
         self.encoding = encoding
         self.text = ""
-        logger.debug(f"Constructing Plain_Text")
+        logger.debug("Constructing Plain_Text")
         while True:
             self.start_position = file.tell()
             read = file.read(PLAIN_TEXT)
-            logger.debug(
-                f"Read file from {self.start_position} to position {file.tell()}, read: {read}"
-            )
+            logger.debug(f"Read file from {self.start_position} to position {file.tell()}, read: {read}")
             # see if we have read all the plain text there is:
             if match := re_patterns.plain_text.match(read):
-                logger.debug(f"This matches the plain text pattern")
+                logger.debug("This matches the plain text pattern")
                 _text = match.group("text").decode(self.encoding)
                 logger.debug(f"{_text = }")
                 self.text = "".join((self.text, _text))
@@ -158,7 +149,7 @@ class Plain_Text(Entity):
 class Group(Entity):
     def __init__(self, encoding: str, file: io.BufferedReader) -> None:
         super().__init__()
-        logger.debug(f"Group.__init__")
+        logger.debug("Group.__init__")
         self.encoding = encoding
         self.known = False
         self.name = "unknown"
@@ -177,9 +168,7 @@ class Group(Entity):
                 file.seek(self.start_position + GROUP_START - IGNORABLE)
                 logger.debug(f"Returned to position {file.tell()}")
         else:
-            logger.warning(
-                utils.warn(f"Expected a group but found no group start. Creating unknown group")
-            )
+            logger.warning(utils.warn("Expected a group but found no group start. Creating unknown group"))
             file.seek(self.start_position)
         while True:
             probed = self.probe(re_patterns.probe, file)
