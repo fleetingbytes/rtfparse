@@ -2,6 +2,14 @@
 
 <!-- towncrier release notes start -->
 
+## 0.9.5 (2025-07-08)
+
+
+### Documentation
+
+- add MIT header to LICENSE.txt [#46](https://github.com/fleetingbytes/rtfparse/issues/46)
+- use MIT SPDX identifier in pyproject.toml, use correct name in LICENSE.txt, update year in LICENSE.txt, rename LICENSE.txt to LICENSE [#47](https://github.com/fleetingbytes/rtfparse/issues/47)
+
 ## 0.9.4 (2024-11-10)
 
 
