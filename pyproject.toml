@@ -9,6 +9,7 @@ build-backend = "hatchling.build"
 name = "rtfparse"
 description = "Tool to parse Microsoft Rich Text Format (RTF)"
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.10"
 authors = [
   { name = "Sven Siegmund", email = "sven.siegmund@iav.de" },
@@ -40,9 +41,6 @@ dependencies = [
     "provide_dir",
 ]
 dynamic = ["version"]
-
-[project.license]
-file = "LICENSE.txt"
 
 [project.urls]
 Documentation = "https://github.com/fleetingbytes/rtfparse#readme"
