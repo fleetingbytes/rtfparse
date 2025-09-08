@@ -37,16 +37,16 @@ class Entity:
             logger.debug(f"{probed = }")
             file.seek(original_position)
             logger.debug(f"Probe returned to position {file.tell()}")
-            if re_patterns.group_start.match(probed):
+            if match := re_patterns.group_start.match(probed):
                 result = Bytestring_Type.GROUP_START
-            elif re_patterns.group_end.match(probed):
+            elif match := re_patterns.group_end.match(probed):
                 result = Bytestring_Type.GROUP_END
-            elif re_patterns.control_word.match(probed):
-                result = Bytestring_Type.CONTROL_WORD
-            elif re_patterns.control_symbol.match(probed):
-                result = Bytestring_Type.CONTROL_SYMBOL
-            elif re_patterns.plain_text.match(probed):
+            elif match := re_patterns.plain_text.match(probed):
                 result = Bytestring_Type.PLAIN_TEXT
+            elif match := re_patterns.control_word.match(probed):
+                result = Bytestring_Type.CONTROL_WORD
+            elif match := re_patterns.control_symbol.match(probed):
+                result = Bytestring_Type.CONTROL_SYMBOL
             else:
                 logger.debug("This does not match anything, it's probably a newline, moving on")
                 original_position += 1
