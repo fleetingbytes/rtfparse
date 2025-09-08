@@ -37,14 +37,11 @@ def no_capture(content: bytes) -> bytes:
 
 # Raw regular expression "strings"" (actually byte strings)
 
-
-_control_characters = rb"\\\{\}"
 _newline = b"\\" + rb"r" + b"\\" + rb"n"
-control_character = group(_control_characters)
-not_control_character = group(rb"^" + _control_characters)
-_control_characters_or_newline = _control_characters + _newline
-control_character_or_newline = group(_control_characters + _newline)
-not_control_character_or_newline = group(rb"^" + _control_characters_or_newline)
+control_character = rb"(" + not_followed_by(group(rb"{}\\"), rb"\\") + rb"|" + not_preceded_by(rb"\\", group(rb"{}")) + rb")"
+not_control_character =  rb"(" + group(rb"^\\{}") + rb"|" + followed_by(group(rb"\\{}"), rb"\\") + rb"|" + preceded_by(rb"\\", group(rb"{}\\")) + rb")"
+control_character_or_newline = rb"(\\(?![{}])|(?<!\\)[{}]|\r?\n)"
+not_control_character_or_newline = rb"(\\(?=[{}\\~])|(?<=\\)[\\{}]|[^\r\n{}\\])"
 rtf_backslash = named_regex_group("backslash", not_preceded_by(rb"\\", rb"\\"))
 unnamed_rtf_backslash = not_preceded_by(rb"\\", rb"\\")
 _letters = rb"a-zA-Z"
