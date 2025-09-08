@@ -182,7 +182,7 @@ class Group(Entity):
             logger.warning(utils.warn("Expected a group but found no group start. Creating unknown group"))
             file.seek(self.start_position)
         while True:
-            probed = self.probe(re_patterns.probe, file)
+            probed, match = self.probe(re_patterns.probe, file)
             if probed is Bytestring_Type.CONTROL_WORD:
                 self.structure.append(Control_Word(self.encoding, file))
             elif probed is Bytestring_Type.GROUP_END:
