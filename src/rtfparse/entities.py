@@ -164,6 +164,7 @@ class Group(Entity):
         self.encoding = encoding
         self.known = None
         self.name = "unknown"
+        self.tail = b""
         self.ignorable = None
         self.structure = list()
         parsed_object = utils.what_is_being_parsed(file)
@@ -187,6 +188,8 @@ class Group(Entity):
                 self.structure.append(Control_Word(self.encoding, file))
             elif probed is Bytestring_Type.GROUP_END:
                 file.read(GROUP_END)
+                if match:
+                    self.tail = match.group("group_tail")
                 break
             elif probed is Bytestring_Type.GROUP_START:
                 self.structure.append(Group(self.encoding, file))
