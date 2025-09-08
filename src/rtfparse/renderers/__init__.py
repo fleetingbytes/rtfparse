@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+from abc import ABC, abstractmethod
 
-
-class Renderer:
+class Renderer(ABC):
+    @abstractmethod
+    def render(self) -> None:
+        pass
     pass
 
 
