@@ -19,13 +19,17 @@ def named_regex_group(name: str, content: bytes) -> bytes:
     return rb"".join((group_start, content, group_end))
 
 
+def preceded_by(preceding: bytes, actual: bytes) -> bytes:
+    return rb"(?<=" + preceding + rb")" + actual
+
 def not_preceded_by(preceding: bytes, actual: bytes) -> bytes:
     return rb"(?<!" + preceding + rb")" + actual
 
+def followed_by(following: bytes, actual: bytes) -> bytes:
+    return actual + rb"(?=" + following + rb")"
 
-def not_followed_by(preceding: bytes, actual: bytes) -> bytes:
-    return rb"(?<!" + preceding + rb")" + actual
-
+def not_followed_by(following: bytes, actual: bytes) -> bytes:
+    return actual + rb"(?!" + following + rb")"
 
 def no_capture(content: bytes) -> bytes:
     return rb"(?:" + content + rb")"
