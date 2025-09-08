@@ -71,11 +71,15 @@ class Control_Word(Entity):
         self.control_name = "missing"
         self.parameter = ""
         self.bindata = b""
+        self.tail = ""
         self.start_position = file.tell()
         logger.debug(f"Starting at file position {self.start_position}")
         probe = file.read(CONTROL_WORD)
         if match := re_patterns.control_word.match(probe):
-            self.control_name = match.group("control_name").decode(self.encoding)
+            self.control_name = (
+                match.group("optional_asterisk").decode(self.encoding)
+                + match.group("control_name").decode(self.encoding)
+            )
             logger.debug(f"Preliminary {self.control_name = }")
             parameter = match.group("parameter")
             if parameter is not None:
@@ -87,6 +91,9 @@ class Control_Word(Entity):
             if match.group("other"):
                 logger.debug(f"Delimiter is {match.group('other').decode(self.encoding)}, len: {len(match.group('delimiter'))}")
                 target_position -= len(match.group("delimiter"))
+            if match.group("delimiter_tail"):
+                self.tail = match.group("delimiter_tail").decode(self.encoding)
+
             file.seek(target_position)
             # handle \binN:
             if self.control_name == "bin":
