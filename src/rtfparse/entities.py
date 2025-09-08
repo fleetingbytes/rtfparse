@@ -3,6 +3,7 @@
 
 import io
 import logging
+import re
 
 # Own modules
 from rtfparse import re_patterns, utils
@@ -26,9 +27,11 @@ class Entity:
         self.text = ""
 
     @classmethod
-    def probe(cls, pattern: re_patterns.Bytes_Regex, file: io.BufferedReader) -> Bytestring_Type:
+    def probe(cls, pattern: re_patterns.Bytes_Regex, file: io.BufferedReader) -> tuple[Bytestring_Type, re.Match | None]:
         logger.debug(f"Probing file at position {file.tell()}")
         original_position = file.tell()
+        match = None
+
         while True:
             probed = file.read(len(re_patterns.probe_pattern))
             logger.debug(f"{probed = }")
@@ -57,7 +60,7 @@ class Entity:
             break
         logger.debug(f"Probe {result = }")
         logger.debug(f"Probe leaving file at position {file.tell()}")
-        return result
+        return result, match
 
 
 class Control_Word(Entity):
