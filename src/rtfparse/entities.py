@@ -107,7 +107,8 @@ class Control_Symbol(Entity):
         logger.debug(f"Reading Symbol at file position {self.start_position}")
         self.char = ""
         self.text = chr(file.read(SYMBOL)[-1])
-        if self.text == "'":
+        self.is_ascii = self.text == "'"
+        if self.is_ascii:
             self.char = file.read(SYMBOL).decode(self.encoding)
             self.text = bytes((int(self.char, base=16),)).decode(self.encoding)
             logger.debug(f"Encountered escaped ANSI character, read two more bytes: {self.char}, character: {self.text}")
