@@ -201,7 +201,7 @@ class Group(Entity):
         # this way the renderer will be able to ignore entire groups based on their first control word
         try:
             if isinstance(self.structure[0], Control_Word):
-                self.name = self.structure[0].control_name
+                self.name = (self.ignorable or b"").decode(self.encoding) + self.structure[0].control_name
         except IndexError:
             pass
 
