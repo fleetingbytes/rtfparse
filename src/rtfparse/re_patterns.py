@@ -67,7 +67,7 @@ nothing = named_regex_group("nothing", group(rb""))
 
 
 ascii_letter_sequence = named_regex_group("control_name", ascii_letters + parameter_pattern + rb"?")
-delimiter = named_regex_group("delimiter", rb"|".join((space, newline, other, nothing, rb"$")))
+delimiter = named_regex_group("delimiter", rb"|".join((named_regex_group("other", group(rb"^" + _letters + _digits + rb"\s*;")), nothing, rb"$"))) + named_regex_group("delimiter_tail", rb"[\s;]*")
 symbol = named_regex_group("symbol", other)
 optional_asterisk = named_regex_group("optional_asterisk", rb"(\\\*)?")
 control_word_pattern = named_regex_group("control_word", optional_asterisk + rtf_backslash + ascii_letter_sequence + delimiter)
