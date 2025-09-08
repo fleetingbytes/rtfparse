@@ -162,9 +162,9 @@ class Group(Entity):
         super().__init__()
         logger.debug("Group.__init__")
         self.encoding = encoding
-        self.known = False
+        self.known = None
         self.name = "unknown"
-        self.ignorable = False
+        self.ignorable = None
         self.structure = list()
         parsed_object = utils.what_is_being_parsed(file)
         logger.debug(f"Creating destination group from {parsed_object}")
@@ -173,8 +173,8 @@ class Group(Entity):
         probe = file.read(GROUP_START)
         logger.debug(f"Read file up to position {file.tell()}, read {probe = }")
         if match := re_patterns.group_start.match(probe):
-            self.known = bool(match.group("group_start"))
-            self.ignorable = bool(match.group("ignorable"))
+            self.known = match.group("group_start")
+            self.ignorable = match.group("ignorable")
             if not self.ignorable:
                 file.seek(self.start_position + GROUP_START - IGNORABLE)
                 logger.debug(f"Returned to position {file.tell()}")
