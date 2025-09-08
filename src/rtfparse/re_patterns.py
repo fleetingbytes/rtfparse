@@ -53,7 +53,7 @@ _digits = rb"0-9"
 _hdigits = rb"0-9a-f"
 ignorable = named_regex_group("ignorable", rb"\\\*")
 rtf_brace_open = named_regex_group("group_start", not_preceded_by(unnamed_rtf_backslash, rb"\{") + ignorable + rb"?")
-rtf_brace_close = named_regex_group("group_end", not_preceded_by(unnamed_rtf_backslash, rb"\}"))
+rtf_brace_close = named_regex_group("group_end", not_preceded_by(unnamed_rtf_backslash, rb"\}")) + named_regex_group("group_tail", rb'\s*')
 
 
 minus = named_regex_group("minus", rb"-?")
