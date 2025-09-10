@@ -3,6 +3,7 @@
 
 import io
 import logging
+import re
 
 # Own modules
 from rtfparse import re_patterns, utils
@@ -26,24 +27,26 @@ class Entity:
         self.text = ""
 
     @classmethod
-    def probe(cls, pattern: re_patterns.Bytes_Regex, file: io.BufferedReader) -> Bytestring_Type:
+    def probe(cls, pattern: re_patterns.Bytes_Regex, file: io.BufferedReader) -> tuple[Bytestring_Type, re.Match | None]:
         logger.debug(f"Probing file at position {file.tell()}")
         original_position = file.tell()
+        match = None
+
         while True:
             probed = file.read(len(re_patterns.probe_pattern))
             logger.debug(f"{probed = }")
             file.seek(original_position)
             logger.debug(f"Probe returned to position {file.tell()}")
-            if re_patterns.group_start.match(probed):
+            if match := re_patterns.group_start.match(probed):
                 result = Bytestring_Type.GROUP_START
-            elif re_patterns.group_end.match(probed):
+            elif match := re_patterns.group_end.match(probed):
                 result = Bytestring_Type.GROUP_END
-            elif re_patterns.control_word.match(probed):
-                result = Bytestring_Type.CONTROL_WORD
-            elif re_patterns.control_symbol.match(probed):
-                result = Bytestring_Type.CONTROL_SYMBOL
-            elif re_patterns.plain_text.match(probed):
+            elif match := re_patterns.plain_text.match(probed):
                 result = Bytestring_Type.PLAIN_TEXT
+            elif match := re_patterns.control_word.match(probed):
+                result = Bytestring_Type.CONTROL_WORD
+            elif match := re_patterns.control_symbol.match(probed):
+                result = Bytestring_Type.CONTROL_SYMBOL
             else:
                 logger.debug("This does not match anything, it's probably a newline, moving on")
                 original_position += 1
@@ -57,7 +60,7 @@ class Entity:
             break
         logger.debug(f"Probe {result = }")
         logger.debug(f"Probe leaving file at position {file.tell()}")
-        return result
+        return result, match
 
 
 class Control_Word(Entity):
@@ -68,11 +71,15 @@ class Control_Word(Entity):
         self.control_name = "missing"
         self.parameter = ""
         self.bindata = b""
+        self.tail = ""
         self.start_position = file.tell()
         logger.debug(f"Starting at file position {self.start_position}")
         probe = file.read(CONTROL_WORD)
         if match := re_patterns.control_word.match(probe):
-            self.control_name = match.group("control_name").decode(self.encoding)
+            self.control_name = (
+                match.group("optional_asterisk").decode(self.encoding)
+                + match.group("control_name").decode(self.encoding)
+            )
             logger.debug(f"Preliminary {self.control_name = }")
             parameter = match.group("parameter")
             if parameter is not None:
@@ -84,6 +91,9 @@ class Control_Word(Entity):
             if match.group("other"):
                 logger.debug(f"Delimiter is {match.group('other').decode(self.encoding)}, len: {len(match.group('delimiter'))}")
                 target_position -= len(match.group("delimiter"))
+            if match.group("delimiter_tail"):
+                self.tail = match.group("delimiter_tail").decode(self.encoding)
+
             file.seek(target_position)
             # handle \binN:
             if self.control_name == "bin":
@@ -104,7 +114,8 @@ class Control_Symbol(Entity):
         logger.debug(f"Reading Symbol at file position {self.start_position}")
         self.char = ""
         self.text = chr(file.read(SYMBOL)[-1])
-        if self.text == "'":
+        self.is_ascii = self.text == "'"
+        if self.is_ascii:
             self.char = file.read(SYMBOL).decode(self.encoding)
             self.text = bytes((int(self.char, base=16),)).decode(self.encoding)
             logger.debug(f"Encountered escaped ANSI character, read two more bytes: {self.char}, character: {self.text}")
@@ -151,9 +162,10 @@ class Group(Entity):
         super().__init__()
         logger.debug("Group.__init__")
         self.encoding = encoding
-        self.known = False
+        self.known = None
         self.name = "unknown"
-        self.ignorable = False
+        self.tail = b""
+        self.ignorable = None
         self.structure = list()
         parsed_object = utils.what_is_being_parsed(file)
         logger.debug(f"Creating destination group from {parsed_object}")
@@ -162,8 +174,8 @@ class Group(Entity):
         probe = file.read(GROUP_START)
         logger.debug(f"Read file up to position {file.tell()}, read {probe = }")
         if match := re_patterns.group_start.match(probe):
-            self.known = bool(match.group("group_start"))
-            self.ignorable = bool(match.group("ignorable"))
+            self.known = match.group("group_start")
+            self.ignorable = match.group("ignorable")
             if not self.ignorable:
                 file.seek(self.start_position + GROUP_START - IGNORABLE)
                 logger.debug(f"Returned to position {file.tell()}")
@@ -171,11 +183,13 @@ class Group(Entity):
             logger.warning(utils.warn("Expected a group but found no group start. Creating unknown group"))
             file.seek(self.start_position)
         while True:
-            probed = self.probe(re_patterns.probe, file)
+            probed, match = self.probe(re_patterns.probe, file)
             if probed is Bytestring_Type.CONTROL_WORD:
                 self.structure.append(Control_Word(self.encoding, file))
             elif probed is Bytestring_Type.GROUP_END:
                 file.read(GROUP_END)
+                if match:
+                    self.tail = match.group("group_tail")
                 break
             elif probed is Bytestring_Type.GROUP_START:
                 self.structure.append(Group(self.encoding, file))
@@ -187,7 +201,7 @@ class Group(Entity):
         # this way the renderer will be able to ignore entire groups based on their first control word
         try:
             if isinstance(self.structure[0], Control_Word):
-                self.name = self.structure[0].control_name
+                self.name = (self.ignorable or b"").decode(self.encoding) + self.structure[0].control_name
         except IndexError:
             pass
 

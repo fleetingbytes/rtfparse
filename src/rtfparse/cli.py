@@ -15,7 +15,9 @@ from provide_dir import provide_dir
 from rtfparse import logging_conf
 from rtfparse.__about__ import __version__
 from rtfparse.parser import Rtf_Parser
+from rtfparse.renderers import Renderer
 from rtfparse.renderers.html_decapsulator import HTML_Decapsulator
+from rtfparse.renderers.rtf_decapsulator import Rtf_Decapsulator
 
 
 def setup_logger(directory: Path) -> logging.Logger:
@@ -49,15 +51,15 @@ def argument_parser() -> ArgumentParser:
     parser.add_argument("-i", "--embed-img", action="store_true", help="Embed images from email to HTML")
     parser.add_argument("-o", "--output-file", metavar="PATH", type=Path, help="path to the desired output file")
     parser.add_argument("-a", "--attachments-dir", metavar="PATH", type=Path, help="path to directory where to save email attachments")
+    parser.add_argument("-R", "--decapsulate-rtf", action="store_true", help="Render RTF")
     return parser
 
 
-def decapsulate(rp: Rtf_Parser, target_file: Path) -> None:
-    renderer = HTML_Decapsulator()
+def decapsulate(rp: Rtf_Parser, target_file: Path, renderer: Renderer) -> None:
     with open(target_file, mode="w", encoding="utf-8") as htmlfile:
-        logger.info("Rendering the encapsulated HTML")
+        logger.info(f"Rendering using {renderer.__class__.__name__}")
         renderer.render(rp.parsed, htmlfile)
-        logger.info("Encapsulated HTML rendered")
+        logger.info(f"Rendering finished, saved to {target_file}")
 
 
 def run(cli_args: Namespace) -> None:
@@ -79,7 +81,9 @@ def run(cli_args: Namespace) -> None:
             rp = Rtf_Parser(rtf_file=rtf_file)
             rp.parse_file()
     if cli_args.decapsulate_html and cli_args.output_file:
-        decapsulate(rp, cli_args.output_file.with_suffix(".html"))
+        decapsulate(rp, cli_args.output_file.with_suffix(".html"), HTML_Decapsulator())
+    if cli_args.decapsulate_rtf and cli_args.output_file:
+        decapsulate(rp, cli_args.output_file.with_suffix(".rtf"), Rtf_Decapsulator())
 
 
 def main() -> None:
@@ -96,3 +100,7 @@ def main() -> None:
     except Exception as err:
         logger.exception(f"Uncaught exception {repr(err)} occurred.")
     logger.debug("rtfparse ended")
+
+
+if __name__ == "__main__":
+    main()
